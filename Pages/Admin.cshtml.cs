@@ -29,7 +29,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ גישה נדחתה. רק מנהל יכול לגשת לעמוד זה.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -42,7 +42,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ גישה נדחתה. רק מנהל יכול לגשת לעמוד זה.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -53,12 +53,12 @@ namespace HelloWorldWeb.Pages
                 user.IsCheater = false;
                 Console.WriteLine($"🔄 [Unflag] Updating user {username} - IsCheater set to false");
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"✅ המשתמש '{username}' שוחרר בהצלחה.";
+                TempData["SuccessMessage"] = $"✅ User '{username}' has been unflagged successfully.";
                 Console.WriteLine($"✅ [Unflag] Updated {username} successfully.");
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ שגיאה בשחרור המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ Error unflagging user '{username}'.";
                 Console.WriteLine($"❌ [Unflag] User {username} not found.");
             }
 
@@ -70,7 +70,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ גישה נדחתה. רק מנהל יכול לגשת לעמוד זה.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -81,12 +81,12 @@ namespace HelloWorldWeb.Pages
                 user.IsBanned = true;
                 Console.WriteLine($"🔄 [Ban] Updating user {username} - IsBanned set to true");
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
+                TempData["SuccessMessage"] = $"🚫 User '{username}' has been banned.";
                 Console.WriteLine($"✅ [Ban] Updated {username} successfully.");
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ שגיאה בחסימת המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ Error banning user '{username}'.";
                 Console.WriteLine($"❌ [Ban] User {username} not found.");
             }
 
@@ -98,7 +98,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ גישה נדחתה. רק מנהל יכול לגשת לעמוד זה.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -109,12 +109,12 @@ namespace HelloWorldWeb.Pages
                 user.IsBanned = false;
                 Console.WriteLine($"🔄 [Unban] Updating user {username} - IsBanned set to false");
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר מחסימה.";
+                TempData["SuccessMessage"] = $"🔓 User '{username}' has been unbanned.";
                 Console.WriteLine($"✅ [Unban] Updated {username} successfully.");
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ שגיאה בשחרור חסימה של '{username}'.";
+                TempData["SuccessMessage"] = $"❌ Error unbanning user '{username}'.";
                 Console.WriteLine($"❌ [Unban] User {username} not found.");
             }
 
@@ -126,7 +126,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ גישה נדחתה. רק מנהל יכול לגשת לעמוד זה.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -134,12 +134,12 @@ namespace HelloWorldWeb.Pages
             var success = await _authService.DeleteUser(username);
             if (success)
             {
-                TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
+                TempData["SuccessMessage"] = $"🗑️ User '{username}' has been deleted.";
                 Console.WriteLine($"✅ [Delete] User {username} deleted.");
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ Error deleting user '{username}'.";
                 Console.WriteLine($"❌ [Delete] Failed to delete {username}.");
             }
 
