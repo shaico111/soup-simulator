@@ -43,7 +43,6 @@ namespace HelloWorldWeb.Pages
                 HttpContext.Session.SetString("SessionStart", DateTime.UtcNow.ToString());
                 HttpContext.Session.SetInt32("RapidTotal", 0);
                 HttpContext.Session.SetInt32("RapidCorrect", 0);
-                HttpContext.Session.SetInt32("CheaterCount", 0);
             }
 
             var user = await _authService.GetUser(Username);
@@ -55,7 +54,6 @@ namespace HelloWorldWeb.Pages
                     Response.Cookies.Delete("Username");
                     return RedirectToPage("/Login");
                 }
-
                 user.LastSeen = DateTime.UtcNow;
                 await _authService.UpdateUser(user);
             }
@@ -149,6 +147,8 @@ namespace HelloWorldWeb.Pages
             rapidTotal = HttpContext.Session.GetInt32("RapidTotal") ?? 0;
             rapidCorrect = HttpContext.Session.GetInt32("RapidCorrect") ?? 0;
 
+            int cheaterCount = HttpContext.Session.GetInt32("CheaterCount") ?? 0;
+
             if (rapidTotal >= 10 || rapidCorrect >= 8)
             {
                 Console.WriteLine($"[CHEATER DETECTED] User: {user.Username} | RapidTotal: {rapidTotal} | RapidCorrect: {rapidCorrect}");
@@ -157,11 +157,8 @@ namespace HelloWorldWeb.Pages
                 user.IsCheater = true;
                 await _authService.UpdateUser(user);
 
-                var cheaterCount = HttpContext.Session.GetInt32("CheaterCount") ?? 0;
                 cheaterCount++;
                 HttpContext.Session.SetInt32("CheaterCount", cheaterCount);
-                HttpContext.Session.SetInt32("RapidTotal", 0);
-                HttpContext.Session.SetInt32("RapidCorrect", 0);
 
                 if (cheaterCount >= 3)
                 {
@@ -172,8 +169,13 @@ namespace HelloWorldWeb.Pages
                     return RedirectToPage("/Login");
                 }
 
+                HttpContext.Session.SetInt32("RapidTotal", 0);
+                HttpContext.Session.SetInt32("RapidCorrect", 0);
                 return RedirectToPage("/Cheater");
             }
+
+            OnlineCount = (await _authService.GetAllUsers())
+                .Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).Count();
 
             return Page();
         }
