@@ -18,38 +18,64 @@
             padding: 40px;
             direction: rtl;
         }
-        h1 { font-size: 32px; margin-bottom: 20px; }
-        h2 { margin-top: 40px; border-bottom: 2px solid #333; padding-bottom: 5px; color: #ffd700; }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            color: #ffd700;
+        }
         table {
-            width: 100%; border-collapse: collapse; margin-top: 15px;
-            background-color: #1e1e1e; border-radius: 10px; overflow: hidden;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
         }
         th, td {
-            padding: 12px; border-bottom: 1px solid #333; text-align: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: center;
         }
-        th { background-color: #222; font-weight: bold; }
-        tr:nth-child(even) { background-color: #191919; }
-        .btn {
-            padding: 6px 12px; border: none; border-radius: 6px;
-            cursor: pointer; font-weight: bold;
+        th {
+            background-color: #222;
+            font-weight: bold;
         }
-        .btn-unflag { background-color: #32cd32; color: white; }
-        .btn-unflag:hover { background-color: #28a428; }
-        .btn-ban { background-color: #ff4c4c; color: white; }
-        .btn-ban:hover { background-color: #cc0000; }
-        .btn-delete { background-color: #ff9900; color: white; }
-        .btn-delete:hover { background-color: #cc7a00; }
-        ul li { margin: 8px 0; }
-        ul strong { color: #1e90ff; }
+        tr:nth-child(even) {
+            background-color: #191919;
+        }
+        ul li {
+            margin: 8px 0;
+        }
+        ul strong {
+            color: #1e90ff;
+        }
         .back-to-quiz {
-            display: inline-block; margin-top: 30px; padding: 10px 20px;
-            background-color: #1e90ff; color: white; text-decoration: none;
-            border-radius: 8px; font-weight: bold;
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #1e90ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
         }
-        .back-to-quiz:hover { background-color: #0077cc; }
+        .back-to-quiz:hover {
+            background-color: #0077cc;
+        }
         .background-gif {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; opacity: 0.05; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.05;
+            z-index: -1;
         }
     </style>
 </head>
@@ -57,18 +83,11 @@
     <img src="/assets/background.gif" class="background-gif" alt="רקע" />
     <h1>📊 ממשק ניהול - Dashboard</h1>
 
-    @if (ViewData["SuccessMessage"] != null)
-    {
-        <div style="background-color:#28a428; padding:12px; border-radius:6px; margin:20px 0; color:white; font-weight:bold; text-align:center;">
-            @ViewData["SuccessMessage"]
-        </div>
-    }
-
     <h2>✅ סטטיסטיקה כללית</h2>
     <ul>
         <li>👥 משתמשים רשומים: <strong>@Model.AllUsers.Count</strong></li>
         <li>🟢 מחוברים כרגע: <strong>@Model.OnlineUsers.Count</strong></li>
-        <li>🚩 מסומנים כ־Cheaters: <strong>@Model.Cheaters.Count</strong></li>
+        <li>🚩 מסומנים כ‏Cheaters: <strong>@Model.Cheaters.Count</strong></li>
         <li>🔒 חסומים: <strong>@Model.BannedUsers.Count</strong></li>
         <li>📈 ממוצע הצלחה: <strong>@Model.AverageSuccessRate.ToString("0.0")%</strong></li>
     </ul>
@@ -102,7 +121,7 @@
 
     <h2>🚨 Cheaters</h2>
     <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th><th>פעולות</th></tr>
+        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
         @foreach (var user in Model.Cheaters)
         {
             <tr>
@@ -110,27 +129,13 @@
                 <td>@user.TotalAnswered</td>
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-                <td>
-                    <form method="post" asp-page-handler="Unflag">
-                        <input type="hidden" name="username" value="@user.Username" />
-                        <button type="submit" class="btn btn-unflag">שחרר</button>
-                    </form>
-                    <form method="post" asp-page-handler="Ban">
-                        <input type="hidden" name="username" value="@user.Username" />
-                        <button type="submit" class="btn btn-ban">חסום</button>
-                    </form>
-                    <form method="post" asp-page-handler="Delete">
-                        <input type="hidden" name="username" value="@user.Username" />
-                        <button type="submit" class="btn btn-delete">🗑️ מחק</button>
-                    </form>
-                </td>
             </tr>
         }
     </table>
 
     <h2>🔒 חסומים</h2>
     <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th><th>פעולה</th></tr>
+        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
         @foreach (var user in Model.BannedUsers)
         {
             <tr>
@@ -138,12 +143,6 @@
                 <td>@user.TotalAnswered</td>
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-                <td>
-                    <form method="post" asp-page-handler="Unban">
-                        <input type="hidden" name="username" value="@user.Username" />
-                        <button type="submit" class="btn btn-unflag">שחרר</button>
-                    </form>
-                </td>
             </tr>
         }
     </table>
