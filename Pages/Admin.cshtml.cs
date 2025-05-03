@@ -29,7 +29,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                ViewData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
