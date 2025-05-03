@@ -119,7 +119,7 @@ namespace HelloWorldWeb.Pages
             var rapidTotal = HttpContext.Session.GetInt32("RapidTotal") ?? 0;
             var rapidCorrect = HttpContext.Session.GetInt32("RapidCorrect") ?? 0;
 
-            if (elapsedSeconds <= 60)
+            if (elapsedSeconds <= 120)
             {
                 HttpContext.Session.SetInt32("RapidTotal", rapidTotal + 1);
                 if (IsCorrect)
