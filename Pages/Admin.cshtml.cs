@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Http;
 using HelloWorldWeb.Models;
 using System;
 using System.Collections.Generic;
@@ -31,15 +30,18 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostUnflagAsync(string username)
+        public async Task<IActionResult> OnPostUnflagAsync()
         {
+            var username = Request.Form["username"];
+            Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
+
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsCheater = false;
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                ViewData["SuccessMessage"] = $"✅ המשתמש '{username}' שוחרר מכל ההגבלות.";
+                ViewData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
             }
             else
             {
@@ -50,8 +52,11 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostBanAsync(string username)
+        public async Task<IActionResult> OnPostBanAsync()
         {
+            var username = Request.Form["username"];
+            Console.WriteLine($"🚫 [Ban] Requested for: {username}");
+
             var user = await _authService.GetUser(username);
             if (user != null)
             {
@@ -68,8 +73,11 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostUnbanAsync(string username)
+        public async Task<IActionResult> OnPostUnbanAsync()
         {
+            var username = Request.Form["username"];
+            Console.WriteLine($"🔓 [Unban] Requested for: {username}");
+
             var user = await _authService.GetUser(username);
             if (user != null)
             {
@@ -86,8 +94,11 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(string username)
+        public async Task<IActionResult> OnPostDeleteAsync()
         {
+            var username = Request.Form["username"];
+            Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
+
             var success = await _authService.DeleteUser(username);
             if (success)
             {
