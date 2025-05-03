@@ -42,7 +42,8 @@ namespace HelloWorldWeb.Models
         {
             try
             {
-                var res = await _client.GetAsync($"{_url}/rest/v1/users?Username=eq.{username}&Password=eq.{password}&select=*");
+                // תיקון בשמות השדות בשאילתות
+                var res = await _client.GetAsync($"{_url}/rest/v1/users?username=eq.{username}&password=eq.{password}&select=*");
                 var json = await res.Content.ReadAsStringAsync();
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
@@ -105,7 +106,7 @@ namespace HelloWorldWeb.Models
         {
             try
             {
-                var res = await _client.GetAsync($"{_url}/rest/v1/users?Username=eq.{username}&select=*");
+                var res = await _client.GetAsync($"{_url}/rest/v1/users?username=eq.{username}&select=*");
                 var json = await res.Content.ReadAsStringAsync();
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
@@ -134,7 +135,7 @@ namespace HelloWorldWeb.Models
             };
 
             var content = new StringContent(JsonSerializer.Serialize(patch), Encoding.UTF8, "application/json");
-            var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_url}/rest/v1/users?Username=eq.{updatedUser.Username}")
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_url}/rest/v1/users?username=eq.{updatedUser.Username}")
             {
                 Content = content
             };
@@ -175,7 +176,7 @@ namespace HelloWorldWeb.Models
 
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Delete, $"{_url}/rest/v1/users?Username=eq.{username}");
+                var request = new HttpRequestMessage(HttpMethod.Delete, $"{_url}/rest/v1/users?username=eq.{username}");
                 request.Headers.Add("Prefer", "return=representation");
                 var response = await _client.SendAsync(request);
 
@@ -200,7 +201,7 @@ namespace HelloWorldWeb.Models
         {
             try
             {
-                var res = await _client.GetAsync($"{_url}/rest/v1/users?select=Username&limit=1");
+                var res = await _client.GetAsync($"{_url}/rest/v1/users?select=username&limit=1");
                 return res.IsSuccessStatusCode;
             }
             catch
