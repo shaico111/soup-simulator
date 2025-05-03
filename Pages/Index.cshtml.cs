@@ -81,6 +81,7 @@ namespace HelloWorldWeb.Pages
                 user.CorrectAnswers = 0;
                 user.TotalAnswered = 0;
                 user.IsCheater = false;
+                user.LastSeen = DateTime.UtcNow;
                 await _authService.UpdateUser(user);
                 return RedirectToPage("/Index");
             }
@@ -108,6 +109,8 @@ namespace HelloWorldWeb.Pages
                 MoveCorrectImages();
             }
 
+            // ✅ עדכון זמן פעילות אחרי כל תשובה
+            user.LastSeen = DateTime.UtcNow;
             await _authService.UpdateUser(user);
 
             var sessionStartStr = HttpContext.Session.GetString("SessionStart");
