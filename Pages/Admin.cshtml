@@ -18,16 +18,19 @@
             padding: 40px;
             direction: rtl;
         }
+
         h1 {
             font-size: 32px;
             margin-bottom: 20px;
         }
+
         h2 {
             margin-top: 40px;
             border-bottom: 2px solid #333;
             padding-bottom: 5px;
             color: #ffd700;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -36,18 +39,22 @@
             border-radius: 10px;
             overflow: hidden;
         }
+
         th, td {
             padding: 12px;
             border-bottom: 1px solid #333;
             text-align: center;
         }
+
         th {
             background-color: #222;
             font-weight: bold;
         }
+
         tr:nth-child(even) {
             background-color: #191919;
         }
+
         .btn {
             padding: 6px 12px;
             border: none;
@@ -55,33 +62,42 @@
             cursor: pointer;
             font-weight: bold;
         }
+
         .btn-unflag {
             background-color: #32cd32;
             color: white;
         }
+
         .btn-unflag:hover {
             background-color: #28a428;
         }
+
         .btn-ban {
             background-color: #ff4c4c;
             color: white;
         }
+
         .btn-ban:hover {
             background-color: #cc0000;
         }
+
         .btn-delete {
             background-color: #ff9900;
             color: white;
         }
+
         .btn-delete:hover {
             background-color: #cc7a00;
         }
+
         ul li {
             margin: 8px 0;
         }
+
         ul strong {
             color: #1e90ff;
         }
+
         .back-to-quiz {
             display: inline-block;
             margin-top: 30px;
@@ -92,9 +108,11 @@
             border-radius: 8px;
             font-weight: bold;
         }
+
         .back-to-quiz:hover {
             background-color: #0077cc;
         }
+
         .background-gif {
             position: fixed;
             top: 0;
@@ -122,7 +140,7 @@
     <ul>
         <li>👥 משתמשים רשומים: <strong>@Model.AllUsers.Count</strong></li>
         <li>🟢 מחוברים כרגע: <strong>@Model.OnlineUsers.Count</strong></li>
-        <li>🚩 מסומנים כ‏Cheaters: <strong>@Model.Cheaters.Count</strong></li>
+        <li>🚩 מסומנים כ־Cheaters: <strong>@Model.Cheaters.Count</strong></li>
         <li>🔒 חסומים: <strong>@Model.BannedUsers.Count</strong></li>
         <li>📈 ממוצע הצלחה: <strong>@Model.AverageSuccessRate.ToString("0.0")%</strong></li>
     </ul>
@@ -165,15 +183,15 @@
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
                 <td>
-                    <form method="post" asp-page="./Admin" asp-page-handler="Unflag" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Unflag" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button class="btn btn-unflag">שחרר</button>
                     </form>
-                    <form method="post" asp-page="./Admin" asp-page-handler="Ban" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Ban" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button class="btn btn-ban">חסום</button>
                     </form>
-                    <form method="post" asp-page="./Admin" asp-page-handler="Delete" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Delete" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button class="btn btn-delete">🗑️ מחק</button>
                     </form>
@@ -193,7 +211,7 @@
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
                 <td>
-                    <form method="post" asp-page="./Admin" asp-page-handler="Unban" asp-route-username="@user.Username">
+                    <form method="post" asp-page-handler="Unban" asp-route-username="@user.Username">
                         @Html.AntiForgeryToken()
                         <button class="btn btn-unflag">שחרר</button>
                     </form>
