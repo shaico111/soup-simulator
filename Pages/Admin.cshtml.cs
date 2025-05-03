@@ -29,7 +29,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
+                ViewData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -47,15 +47,17 @@ namespace HelloWorldWeb.Pages
                 user.IsCheater = false;
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
+                ViewData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
                 Console.WriteLine($"✅ [Unflag] {username} updated: IsCheater=false, IsBanned=false");
-                TempData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
             }
             else
             {
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
                 Console.WriteLine($"❌ [Unflag] User not found: {username}");
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-            return RedirectToPage();
+
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostBanAsync(string username)
@@ -66,15 +68,17 @@ namespace HelloWorldWeb.Pages
             {
                 user.IsBanned = true;
                 await _authService.UpdateUser(user);
+                ViewData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
                 Console.WriteLine($"✅ [Ban] {username} updated: IsBanned=true");
-                TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
             }
             else
             {
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
                 Console.WriteLine($"❌ [Ban] User not found: {username}");
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-            return RedirectToPage();
+
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
@@ -85,15 +89,17 @@ namespace HelloWorldWeb.Pages
             {
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
+                ViewData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
                 Console.WriteLine($"✅ [Unban] {username} updated: IsBanned=false");
-                TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
             }
             else
             {
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
                 Console.WriteLine($"❌ [Unban] User not found: {username}");
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-            return RedirectToPage();
+
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
@@ -102,15 +108,17 @@ namespace HelloWorldWeb.Pages
             var success = await _authService.DeleteUser(username);
             if (success)
             {
+                ViewData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
                 Console.WriteLine($"✅ [Delete] Deleted user: {username}");
-                TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
             }
             else
             {
+                ViewData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
                 Console.WriteLine($"❌ [Delete] Failed to delete: {username}");
-                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
             }
-            return RedirectToPage();
+
+            await LoadData();
+            return Page();
         }
 
         private bool IsAdmin()
