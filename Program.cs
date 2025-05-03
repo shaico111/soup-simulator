@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Razor Pages + Session
 builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor(); 
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSession(options =>
 {
