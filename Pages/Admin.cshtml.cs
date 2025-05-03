@@ -29,7 +29,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
+                ViewData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -40,6 +40,8 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostUnflagAsync(string username)
         {
+            if (!IsAdmin()) return RedirectToPage("/Index");
+
             Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
@@ -48,12 +50,10 @@ namespace HelloWorldWeb.Pages
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
                 ViewData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
-                Console.WriteLine($"✅ [Unflag] {username} updated: IsCheater=false, IsBanned=false");
             }
             else
             {
                 ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
-                Console.WriteLine($"❌ [Unflag] User not found: {username}");
             }
 
             await LoadData();
@@ -62,6 +62,8 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostBanAsync(string username)
         {
+            if (!IsAdmin()) return RedirectToPage("/Index");
+
             Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
@@ -69,12 +71,10 @@ namespace HelloWorldWeb.Pages
                 user.IsBanned = true;
                 await _authService.UpdateUser(user);
                 ViewData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
-                Console.WriteLine($"✅ [Ban] {username} updated: IsBanned=true");
             }
             else
             {
                 ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
-                Console.WriteLine($"❌ [Ban] User not found: {username}");
             }
 
             await LoadData();
@@ -83,6 +83,8 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
         {
+            if (!IsAdmin()) return RedirectToPage("/Index");
+
             Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
@@ -90,12 +92,10 @@ namespace HelloWorldWeb.Pages
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
                 ViewData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
-                Console.WriteLine($"✅ [Unban] {username} updated: IsBanned=false");
             }
             else
             {
                 ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
-                Console.WriteLine($"❌ [Unban] User not found: {username}");
             }
 
             await LoadData();
@@ -104,17 +104,17 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
         {
+            if (!IsAdmin()) return RedirectToPage("/Index");
+
             Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
             var success = await _authService.DeleteUser(username);
             if (success)
             {
                 ViewData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
-                Console.WriteLine($"✅ [Delete] Deleted user: {username}");
             }
             else
             {
                 ViewData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
-                Console.WriteLine($"❌ [Delete] Failed to delete: {username}");
             }
 
             await LoadData();
@@ -134,7 +134,9 @@ namespace HelloWorldWeb.Pages
             BannedUsers = AllUsers.Where(u => u.IsBanned).ToList();
             OnlineUsers = AllUsers.Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).ToList();
             TopUsers = AllUsers.OrderByDescending(u => u.CorrectAnswers).Take(5).ToList();
-            AverageSuccessRate = AllUsers.Where(u => u.TotalAnswered > 0).Select(u => (double)u.CorrectAnswers / u.TotalAnswered).DefaultIfEmpty(0).Average() * 100;
+            AverageSuccessRate = AllUsers.Where(u => u.TotalAnswered > 0)
+                .Select(u => (double)u.CorrectAnswers / u.TotalAnswered)
+                .DefaultIfEmpty(0).Average() * 100;
         }
     }
 }
