@@ -34,7 +34,7 @@ namespace HelloWorldWeb.Pages
             }
 
             Console.WriteLine("🔄 [OnGet] Admin access confirmed.");
-            await LoadData();
+            await LoadData();  // Loading all data on page load
             return Page();
         }
 
@@ -46,13 +46,12 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
-            Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
-                user.IsCheater = false;
+                user.IsCheater = false;  // Unflag user as cheater
                 Console.WriteLine($"🔄 [Unflag] Updating user {username} - IsCheater set to false");
-                await _authService.UpdateUser(user);
+                await _authService.UpdateUser(user);  // Update user in Supabase
                 TempData["SuccessMessage"] = $"✅ User '{username}' has been unflagged successfully.";
                 Console.WriteLine($"✅ [Unflag] Updated {username} successfully.");
             }
@@ -74,13 +73,12 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
-            Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
-                user.IsBanned = true;
+                user.IsBanned = true;  // Ban user
                 Console.WriteLine($"🔄 [Ban] Updating user {username} - IsBanned set to true");
-                await _authService.UpdateUser(user);
+                await _authService.UpdateUser(user);  // Update user in Supabase
                 TempData["SuccessMessage"] = $"🚫 User '{username}' has been banned.";
                 Console.WriteLine($"✅ [Ban] Updated {username} successfully.");
             }
@@ -102,13 +100,12 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
-            Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
-                user.IsBanned = false;
+                user.IsBanned = false;  // Unban user
                 Console.WriteLine($"🔄 [Unban] Updating user {username} - IsBanned set to false");
-                await _authService.UpdateUser(user);
+                await _authService.UpdateUser(user);  // Update user in Supabase
                 TempData["SuccessMessage"] = $"🔓 User '{username}' has been unbanned.";
                 Console.WriteLine($"✅ [Unban] Updated {username} successfully.");
             }
@@ -130,8 +127,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
-            Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
-            var success = await _authService.DeleteUser(username);
+            var success = await _authService.DeleteUser(username);  // Delete user from Supabase
             if (success)
             {
                 TempData["SuccessMessage"] = $"🗑️ User '{username}' has been deleted.";
@@ -150,7 +146,7 @@ namespace HelloWorldWeb.Pages
         private bool IsAdmin()
         {
             var sessionUser = HttpContext.Session.GetString("Username");
-            return sessionUser == "Admin";
+            return sessionUser == "Admin";  // Check if user is Admin
         }
 
         private async Task LoadData()
