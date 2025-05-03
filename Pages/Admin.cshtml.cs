@@ -40,110 +40,76 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostUnflagAsync(string username)
         {
-            if (!IsAdmin())
-            {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
-                return RedirectToPage("/Index");
-            }
-
             Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsCheater = false;
-                Console.WriteLine($"🔄 [Unflag] Updating user {username} - IsCheater set to FALSE");
+                user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"✅ User '{username}' has been unflagged successfully.";
-                Console.WriteLine($"✅ [Unflag] Updated {username} successfully.");
+                Console.WriteLine($"✅ [Unflag] {username} updated: IsCheater=false, IsBanned=false");
+                TempData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ Error unflagging user '{username}'.";
-                Console.WriteLine($"❌ [Unflag] User {username} not found.");
+                Console.WriteLine($"❌ [Unflag] User not found: {username}");
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-
-            await LoadData();
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostBanAsync(string username)
         {
-            if (!IsAdmin())
-            {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
-                return RedirectToPage("/Index");
-            }
-
             Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = true;
-                Console.WriteLine($"🔄 [Ban] Updating user {username} - IsBanned set to TRUE");
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🚫 User '{username}' has been banned.";
-                Console.WriteLine($"✅ [Ban] Updated {username} successfully.");
+                Console.WriteLine($"✅ [Ban] {username} updated: IsBanned=true");
+                TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ Error banning user '{username}'.";
-                Console.WriteLine($"❌ [Ban] User {username} not found.");
+                Console.WriteLine($"❌ [Ban] User not found: {username}");
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-
-            await LoadData();
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
         {
-            if (!IsAdmin())
-            {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
-                return RedirectToPage("/Index");
-            }
-
             Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = false;
-                Console.WriteLine($"🔄 [Unban] Updating user {username} - IsBanned set to FALSE");
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🔓 User '{username}' has been unbanned.";
-                Console.WriteLine($"✅ [Unban] Updated {username} successfully.");
+                Console.WriteLine($"✅ [Unban] {username} updated: IsBanned=false");
+                TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ Error unbanning user '{username}'.";
-                Console.WriteLine($"❌ [Unban] User {username} not found.");
+                Console.WriteLine($"❌ [Unban] User not found: {username}");
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
-
-            await LoadData();
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
         {
-            if (!IsAdmin())
-            {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
-                return RedirectToPage("/Index");
-            }
-
             Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
             var success = await _authService.DeleteUser(username);
             if (success)
             {
-                TempData["SuccessMessage"] = $"🗑️ User '{username}' has been deleted.";
-                Console.WriteLine($"✅ [Delete] User {username} deleted.");
+                Console.WriteLine($"✅ [Delete] Deleted user: {username}");
+                TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ Error deleting user '{username}'.";
-                Console.WriteLine($"❌ [Delete] Failed to delete {username}.");
+                Console.WriteLine($"❌ [Delete] Failed to delete: {username}");
+                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
             }
-
-            await LoadData();
             return RedirectToPage();
         }
 
@@ -156,13 +122,11 @@ namespace HelloWorldWeb.Pages
         private async Task LoadData()
         {
             AllUsers = await _authService.GetAllUsers();
-            Console.WriteLine($"🔄 [LoadData] Loaded {AllUsers.Count} users from Supabase.");
             Cheaters = AllUsers.Where(u => u.IsCheater).ToList();
             BannedUsers = AllUsers.Where(u => u.IsBanned).ToList();
             OnlineUsers = AllUsers.Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).ToList();
             TopUsers = AllUsers.OrderByDescending(u => u.CorrectAnswers).Take(5).ToList();
             AverageSuccessRate = AllUsers.Where(u => u.TotalAnswered > 0).Select(u => (double)u.CorrectAnswers / u.TotalAnswered).DefaultIfEmpty(0).Average() * 100;
-            Console.WriteLine($"🔄 [LoadData] Cheaters: {Cheaters.Count}, Banned: {BannedUsers.Count}, Online: {OnlineUsers.Count}");
         }
     }
 }
