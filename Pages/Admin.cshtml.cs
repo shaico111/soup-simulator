@@ -33,6 +33,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine("🔄 [OnGet] Admin access confirmed.");
             await LoadData();
             return Page();
         }
@@ -45,16 +46,20 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsCheater = false;
+                Console.WriteLine($"🔄 [Unflag] Updating user {username} - IsCheater set to false");
                 await _authService.UpdateUser(user);
                 TempData["SuccessMessage"] = $"✅ המשתמש '{username}' שוחרר בהצלחה.";
+                Console.WriteLine($"✅ [Unflag] Updated {username} successfully.");
             }
             else
             {
                 TempData["SuccessMessage"] = $"❌ שגיאה בשחרור המשתמש '{username}'.";
+                Console.WriteLine($"❌ [Unflag] User {username} not found.");
             }
 
             return RedirectToPage();
@@ -68,16 +73,20 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = true;
+                Console.WriteLine($"🔄 [Ban] Updating user {username} - IsBanned set to true");
                 await _authService.UpdateUser(user);
                 TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
+                Console.WriteLine($"✅ [Ban] Updated {username} successfully.");
             }
             else
             {
                 TempData["SuccessMessage"] = $"❌ שגיאה בחסימת המשתמש '{username}'.";
+                Console.WriteLine($"❌ [Ban] User {username} not found.");
             }
 
             return RedirectToPage();
@@ -91,16 +100,20 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = false;
+                Console.WriteLine($"🔄 [Unban] Updating user {username} - IsBanned set to false");
                 await _authService.UpdateUser(user);
                 TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר מחסימה.";
+                Console.WriteLine($"✅ [Unban] Updated {username} successfully.");
             }
             else
             {
                 TempData["SuccessMessage"] = $"❌ שגיאה בשחרור חסימה של '{username}'.";
+                Console.WriteLine($"❌ [Unban] User {username} not found.");
             }
 
             return RedirectToPage();
@@ -114,14 +127,17 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
             var success = await _authService.DeleteUser(username);
             if (success)
             {
                 TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
+                Console.WriteLine($"✅ [Delete] User {username} deleted.");
             }
             else
             {
                 TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
+                Console.WriteLine($"❌ [Delete] Failed to delete {username}.");
             }
 
             return RedirectToPage();
@@ -136,6 +152,7 @@ namespace HelloWorldWeb.Pages
         private async Task LoadData()
         {
             AllUsers = await _authService.GetAllUsers();
+            Console.WriteLine($"🔄 [LoadData] Loaded {AllUsers.Count} users from Supabase.");
             Cheaters = AllUsers.Where(u => u.IsCheater).ToList();
             BannedUsers = AllUsers.Where(u => u.IsBanned).ToList();
             OnlineUsers = AllUsers
@@ -147,6 +164,8 @@ namespace HelloWorldWeb.Pages
                 .Select(u => (double)u.CorrectAnswers / u.TotalAnswered)
                 .DefaultIfEmpty(0)
                 .Average() * 100;
+
+            Console.WriteLine($"🔄 [LoadData] Loaded {Cheaters.Count} cheaters, {BannedUsers.Count} banned users, and {OnlineUsers.Count} online users.");
         }
     }
 }
