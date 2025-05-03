@@ -183,15 +183,15 @@
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
                 <td>
-                    <form method="post" asp-page="/Admin" asp-page-handler="Unflag" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Unflag" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-unflag">שחרר</button>
                     </form>
-                    <form method="post" asp-page="/Admin" asp-page-handler="Ban" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Ban" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-ban">חסום</button>
                     </form>
-                    <form method="post" asp-page="/Admin" asp-page-handler="Delete" asp-route-username="@user.Username" style="display:inline;">
+                    <form method="post" asp-page-handler="Delete" asp-route-username="@user.Username" style="display:inline;">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-delete">🗑️ מחק</button>
                     </form>
@@ -211,7 +211,7 @@
                 <td>@user.CorrectAnswers</td>
                 <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
                 <td>
-                    <form method="post" asp-page="/Admin" asp-page-handler="Unban" asp-route-username="@user.Username">
+                    <form method="post" asp-page-handler="Unban" asp-route-username="@user.Username">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-unflag">שחרר</button>
                     </form>
