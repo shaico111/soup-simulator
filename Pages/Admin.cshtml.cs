@@ -90,7 +90,7 @@ namespace HelloWorldWeb.Pages
                 Console.WriteLine($"❌ [Ban] User {username} not found.");
             }
 
-            await LoadData();  // Reload data to refresh the page with updated info
+            await LoadData();
             return RedirectToPage();
         }
 
@@ -118,7 +118,7 @@ namespace HelloWorldWeb.Pages
                 Console.WriteLine($"❌ [Unban] User {username} not found.");
             }
 
-            await LoadData();  // Reload data to refresh the page with updated info
+            await LoadData();
             return RedirectToPage();
         }
 
@@ -143,7 +143,7 @@ namespace HelloWorldWeb.Pages
                 Console.WriteLine($"❌ [Delete] Failed to delete {username}.");
             }
 
-            await LoadData();  // Reload data to refresh the page with updated info
+            await LoadData();
             return RedirectToPage();
         }
 
