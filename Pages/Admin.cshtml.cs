@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Http;
 using HelloWorldWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 
 namespace HelloWorldWeb.Pages
 {
@@ -46,6 +46,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
@@ -73,6 +74,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
@@ -100,6 +102,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
@@ -127,6 +130,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
             var success = await _authService.DeleteUser(username);  // Delete user from Supabase
             if (success)
             {
