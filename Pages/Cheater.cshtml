@@ -1,116 +1,58 @@
 @page
-@model HelloWorldWeb.Pages.AdminModel
 @{
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
     <meta charset="utf-8" />
-    <title>🔧 ממשק ניהול</title>
+    <title>זוהתה רמאות</title>
     <link rel="stylesheet" href="/css/site.css" />
     <style>
-        body {
-            background-color: #111;
-            color: #fff;
-            font-family: "Segoe UI", sans-serif;
-            padding: 40px;
-            direction: rtl;
+        .cheater-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15vh;
+            padding: 30px;
+            border-radius: 16px;
+            background-color: rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeIn 1s ease forwards;
+            z-index: 1;
+            position: relative;
         }
 
-        h1 {
-            font-size: 32px;
+        .cheater-container h1 {
+            color: #ff4c4c;
+            font-size: 42px;
             margin-bottom: 20px;
         }
 
-        h2 {
-            margin-top: 40px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-            color: #ffd700;
+        .cheater-container p {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background-color: #1e1e1e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #333;
-            text-align: center;
-        }
-
-        th {
-            background-color: #222;
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background-color: #191919;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-unflag {
-            background-color: #32cd32;
-            color: white;
-        }
-
-        .btn-unflag:hover {
-            background-color: #28a428;
-        }
-
-        .btn-ban {
+        .cheater-container a {
+            margin-top: 25px;
+            padding: 10px 20px;
             background-color: #ff4c4c;
             color: white;
-        }
-
-        .btn-ban:hover {
-            background-color: #cc0000;
-        }
-
-        .btn-delete {
-            background-color: #ff9900;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #cc7a00;
-        }
-
-        ul li {
-            margin: 8px 0;
-        }
-
-        ul strong {
-            color: #1e90ff;
-        }
-
-        .back-to-quiz {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 10px 20px;
-            background-color: #1e90ff;
-            color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 8px;
+            text-decoration: none;
             font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
-        .back-to-quiz:hover {
-            background-color: #0077cc;
+        .cheater-container a:hover {
+            background-color: #cc0000;
         }
 
         .background-gif {
@@ -119,107 +61,27 @@
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 0;
             object-fit: cover;
-            opacity: 0.05;
-            z-index: -1;
+            opacity: 0.2;
         }
     </style>
 </head>
 <body>
-    <img src="/assets/background.gif" class="background-gif" alt="רקע" />
-    <h1>📊 ממשק ניהול - Dashboard</h1>
+    <!-- רקע -->
+    <img src="/assets/background.gif" alt="רקע" class="background-gif" />
 
-    @if (ViewData["SuccessMessage"] != null)
-    {
-        <div style="background-color:#28a428; padding:12px; border-radius:6px; margin:20px 0; color:white; font-weight:bold; text-align:center;">
-            @ViewData["SuccessMessage"]
-        </div>
-    }
+    <div class="cheater-container">
+        <h1>🚫 זוהתה רמאות</h1>
+        <p>המערכת זיהתה תגובות מהירות מדי ודיוק בלתי סביר.</p>
+        <p>לשמירה על הוגנות – ההתקדמות שלך אופסה.</p>
+        <a href="/Index">⬅ חזרה לתחילת המבחן</a>
+    </div>
 
-    <h2>✅ סטטיסטיקה כללית</h2>
-    <ul>
-        <li>👥 משתמשים רשומים: <strong>@Model.AllUsers.Count</strong></li>
-        <li>🟢 מחוברים כרגע: <strong>@Model.OnlineUsers.Count</strong></li>
-        <li>🚩 מסומנים כ־Cheaters: <strong>@Model.Cheaters.Count</strong></li>
-        <li>🔒 חסומים: <strong>@Model.BannedUsers.Count</strong></li>
-        <li>📈 ממוצע הצלחה: <strong>@Model.AverageSuccessRate.ToString("0.0")%</strong></li>
-    </ul>
-
-    <h2>📶 משתמשים מחוברים כרגע</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
-        @foreach (var user in Model.OnlineUsers)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-            </tr>
-        }
-    </table>
-
-    <h2>🏆 טבלת מובילים</h2>
-    <table>
-        <tr><th>מיקום</th><th>שם משתמש</th><th>תשובות נכונות</th></tr>
-        @for (int i = 0; i < Model.TopUsers.Count; i++)
-        {
-            <tr>
-                <td>@(i + 1)</td>
-                <td>@Model.TopUsers[i].Username</td>
-                <td>@Model.TopUsers[i].CorrectAnswers</td>
-            </tr>
-        }
-    </table>
-
-    <h2>🚨 Cheaters</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th><th>פעולות</th></tr>
-        @foreach (var user in Model.Cheaters)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-                <td>
-                    <form method="post" asp-page-handler="Unflag" asp-route-username="@user.Username">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-unflag">שחרר</button>
-                    </form>
-                    <form method="post" asp-page-handler="Ban" asp-route-username="@user.Username">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-ban">חסום</button>
-                    </form>
-                    <form method="post" asp-page-handler="Delete" asp-route-username="@user.Username">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-delete">🗑️ מחק</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </table>
-
-    <h2>🔒 חסומים</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th><th>פעולה</th></tr>
-        @foreach (var user in Model.BannedUsers)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-                <td>
-                    <form method="post" asp-page-handler="Unban" asp-route-username="@user.Username">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-unflag">שחרר</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </table>
-
-    <a href="/Index" class="back-to-quiz">⬅ חזרה לחידון</a>
+    <!-- סאונד התרעה -->
+    <audio autoplay>
+        <source src="/sounds/alarm.mp3" type="audio/mpeg">
+        הדפדפן שלך לא תומך בהשמעת סאונד.
+    </audio>
 </body>
 </html>
