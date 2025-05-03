@@ -35,14 +35,6 @@ namespace HelloWorldWeb.Pages
             if (string.IsNullOrEmpty(Username))
                 return RedirectToPage("/Login");
 
-            var user = await _authService.GetUser(Username);
-            if (user == null || user.IsBanned)
-            {
-                HttpContext.Session.Clear();
-                Response.Cookies.Delete("Username");
-                return RedirectToPage("/Login");
-            }
-
             var isUp = await _authService.CheckConnection();
             ConnectionStatus = isUp ? "✅ Supabase connection OK" : "❌ Supabase connection FAILED";
 
@@ -51,10 +43,22 @@ namespace HelloWorldWeb.Pages
                 HttpContext.Session.SetString("SessionStart", DateTime.UtcNow.ToString());
                 HttpContext.Session.SetInt32("RapidTotal", 0);
                 HttpContext.Session.SetInt32("RapidCorrect", 0);
+                HttpContext.Session.SetInt32("CheaterCount", 0);
             }
 
-            user.LastSeen = DateTime.UtcNow;
-            await _authService.UpdateUser(user);
+            var user = await _authService.GetUser(Username);
+            if (user != null)
+            {
+                if (user.IsBanned)
+                {
+                    HttpContext.Session.Clear();
+                    Response.Cookies.Delete("Username");
+                    return RedirectToPage("/Login");
+                }
+
+                user.LastSeen = DateTime.UtcNow;
+                await _authService.UpdateUser(user);
+            }
 
             OnlineCount = (await _authService.GetAllUsers())
                 .Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).Count();
@@ -77,7 +81,10 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Login");
 
             var user = await _authService.GetUser(Username);
-            if (user == null || user.IsBanned)
+            if (user == null)
+                return RedirectToPage("/Login");
+
+            if (user.IsBanned)
             {
                 HttpContext.Session.Clear();
                 Response.Cookies.Delete("Username");
@@ -145,20 +152,19 @@ namespace HelloWorldWeb.Pages
             if (rapidTotal >= 10 || rapidCorrect >= 8)
             {
                 Console.WriteLine($"[CHEATER DETECTED] User: {user.Username} | RapidTotal: {rapidTotal} | RapidCorrect: {rapidCorrect}");
-
                 user.CorrectAnswers = 0;
                 user.TotalAnswered = 0;
                 user.IsCheater = true;
                 await _authService.UpdateUser(user);
 
-                var cheaterCountKey = $"CheaterCount_{user.Username}";
-                int cheaterCount = HttpContext.Session.GetInt32(cheaterCountKey) ?? 0;
+                var cheaterCount = HttpContext.Session.GetInt32("CheaterCount") ?? 0;
                 cheaterCount++;
-                HttpContext.Session.SetInt32(cheaterCountKey, cheaterCount);
+                HttpContext.Session.SetInt32("CheaterCount", cheaterCount);
+                HttpContext.Session.SetInt32("RapidTotal", 0);
+                HttpContext.Session.SetInt32("RapidCorrect", 0);
 
                 if (cheaterCount >= 3)
                 {
-                    Console.WriteLine($"[BANNED] User {user.Username} was flagged as cheater 3+ times. Now banned.");
                     user.IsBanned = true;
                     await _authService.UpdateUser(user);
                     HttpContext.Session.Clear();
@@ -166,8 +172,6 @@ namespace HelloWorldWeb.Pages
                     return RedirectToPage("/Login");
                 }
 
-                HttpContext.Session.SetInt32("RapidTotal", 0);
-                HttpContext.Session.SetInt32("RapidCorrect", 0);
                 return RedirectToPage("/Cheater");
             }
 
