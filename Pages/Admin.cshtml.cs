@@ -30,9 +30,8 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostUnflagAsync()
+        public async Task<IActionResult> OnPostUnflagAsync(string username)
         {
-            var username = Request.Form["username"];
             Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
 
             var user = await _authService.GetUser(username);
@@ -52,9 +51,8 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostBanAsync()
+        public async Task<IActionResult> OnPostBanAsync(string username)
         {
-            var username = Request.Form["username"];
             Console.WriteLine($"🚫 [Ban] Requested for: {username}");
 
             var user = await _authService.GetUser(username);
@@ -73,9 +71,8 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostUnbanAsync()
+        public async Task<IActionResult> OnPostUnbanAsync(string username)
         {
-            var username = Request.Form["username"];
             Console.WriteLine($"🔓 [Unban] Requested for: {username}");
 
             var user = await _authService.GetUser(username);
@@ -94,9 +91,8 @@ namespace HelloWorldWeb.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync()
+        public async Task<IActionResult> OnPostDeleteAsync(string username)
         {
-            var username = Request.Form["username"];
             Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
 
             var success = await _authService.DeleteUser(username);
