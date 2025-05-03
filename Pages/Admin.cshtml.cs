@@ -30,8 +30,7 @@ namespace HelloWorldWeb.Pages
             if (!IsAdmin())
             {
                 Console.WriteLine("❌ Access denied. User is not admin.");
-                TempData["ErrorMessage"] = "❌ גישה נדחתה! אתה לא מנהל.";
-                return Page();
+                return RedirectToPage("/Index");
             }
 
             Console.WriteLine("🔄 [OnGet] Admin access confirmed.");
@@ -44,8 +43,7 @@ namespace HelloWorldWeb.Pages
             if (!IsAdmin())
             {
                 Console.WriteLine("❌ Access denied. User is not admin.");
-                TempData["ErrorMessage"] = "❌ גישה נדחתה! אתה לא מנהל.";
-                return Page();
+                return RedirectToPage("/Index");
             }
 
             Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
@@ -60,10 +58,10 @@ namespace HelloWorldWeb.Pages
             else
             {
                 Console.WriteLine($"❌ [Unflag] User {username} not found.");
-                TempData["ErrorMessage"] = $"❌ שגיאה בשחרור המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ שגיאה בשחרור המשתמש '{username}'.";
             }
 
-            return Page(); // לא מעבר לדף אחר
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostBanAsync(string username)
@@ -71,8 +69,7 @@ namespace HelloWorldWeb.Pages
             if (!IsAdmin())
             {
                 Console.WriteLine("❌ Access denied. User is not admin.");
-                TempData["ErrorMessage"] = "❌ גישה נדחתה! אתה לא מנהל.";
-                return Page();
+                return RedirectToPage("/Index");
             }
 
             Console.WriteLine($"🚫 [Ban] Requested for: {username}");
@@ -87,10 +84,10 @@ namespace HelloWorldWeb.Pages
             else
             {
                 Console.WriteLine($"❌ [Ban] User {username} not found.");
-                TempData["ErrorMessage"] = $"❌ שגיאה בחסימת המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ שגיאה בחסימת המשתמש '{username}'.";
             }
 
-            return Page(); // לא מעבר לדף אחר
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
@@ -98,8 +95,7 @@ namespace HelloWorldWeb.Pages
             if (!IsAdmin())
             {
                 Console.WriteLine("❌ Access denied. User is not admin.");
-                TempData["ErrorMessage"] = "❌ גישה נדחתה! אתה לא מנהל.";
-                return Page();
+                return RedirectToPage("/Index");
             }
 
             Console.WriteLine($"🔓 [Unban] Requested for: {username}");
@@ -114,10 +110,10 @@ namespace HelloWorldWeb.Pages
             else
             {
                 Console.WriteLine($"❌ [Unban] User {username} not found.");
-                TempData["ErrorMessage"] = $"❌ שגיאה בשחרור חסימה של '{username}'.";
+                TempData["SuccessMessage"] = $"❌ שגיאה בשחרור חסימה של '{username}'.";
             }
 
-            return Page(); // לא מעבר לדף אחר
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
@@ -125,8 +121,7 @@ namespace HelloWorldWeb.Pages
             if (!IsAdmin())
             {
                 Console.WriteLine("❌ Access denied. User is not admin.");
-                TempData["ErrorMessage"] = "❌ גישה נדחתה! אתה לא מנהל.";
-                return Page();
+                return RedirectToPage("/Index");
             }
 
             Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
@@ -139,10 +134,10 @@ namespace HelloWorldWeb.Pages
             else
             {
                 Console.WriteLine($"❌ [Delete] Failed to delete {username}.");
-                TempData["ErrorMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
             }
 
-            return Page(); // לא מעבר לדף אחר
+            return RedirectToPage();
         }
 
         private bool IsAdmin()
