@@ -24,9 +24,7 @@ namespace HelloWorldWeb.Models
             _apiKey = config["SUPABASE_KEY"]!;
 
             if (string.IsNullOrWhiteSpace(_url) || string.IsNullOrWhiteSpace(_apiKey))
-            {
                 throw new Exception("Missing Supabase ENV vars.");
-            }
 
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("apikey", _apiKey);
@@ -106,7 +104,7 @@ namespace HelloWorldWeb.Models
             var patch = new[]
             {
                 new {
-                    Username = updatedUser.Username, // חובה לכלול אותו כדי לוודא עדכון תקין
+                    Username = updatedUser.Username, // חובה כדי לוודא התאמה לפי Primary Key
                     CorrectAnswers = updatedUser.CorrectAnswers,
                     TotalAnswered = updatedUser.TotalAnswered,
                     IsCheater = updatedUser.IsCheater,
@@ -123,10 +121,7 @@ namespace HelloWorldWeb.Models
             request.Headers.Add("Prefer", "return=representation");
 
             var response = await _client.SendAsync(request);
-            var body = await response.Content.ReadAsStringAsync();
-
             Console.WriteLine($"[UpdateUser] Status: {response.StatusCode}");
-            Console.WriteLine($"[UpdateUser] Body: {body}");
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception($"UpdateUser failed for {updatedUser.Username}");
