@@ -1,152 +1,45 @@
-@page
-@model HelloWorldWeb.Pages.AdminModel
-@{
-    Layout = null;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using HelloWorldWeb.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace HelloWorldWeb.Pages
+{
+    public class AdminModel : PageModel
+    {
+        private readonly AuthService _authService;
+
+        public AdminModel(AuthService authService)
+        {
+            _authService = authService;
+        }
+
+        public List<User> AllUsers { get; set; } = new();
+        public List<User> Cheaters { get; set; } = new();
+        public List<User> BannedUsers { get; set; } = new();
+        public List<User> OnlineUsers { get; set; } = new();
+        public List<User> TopUsers { get; set; } = new();
+        public double AverageSuccessRate { get; set; }
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            await LoadData();
+            return Page();
+        }
+
+        private async Task LoadData()
+        {
+            AllUsers = await _authService.GetAllUsers();
+            Cheaters = AllUsers.Where(u => u.IsCheater).ToList();
+            BannedUsers = AllUsers.Where(u => u.IsBanned).ToList();
+            OnlineUsers = AllUsers.Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).ToList();
+            TopUsers = AllUsers.OrderByDescending(u => u.CorrectAnswers).Take(5).ToList();
+            AverageSuccessRate = AllUsers.Where(u => u.TotalAnswered > 0)
+                .Select(u => (double)u.CorrectAnswers / u.TotalAnswered)
+                .DefaultIfEmpty(0).Average() * 100;
+        }
+    }
 }
-
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <title>🔧 ממשק ניהול</title>
-    <link rel="stylesheet" href="/css/site.css" />
-    <style>
-        body {
-            background-color: #111;
-            color: #fff;
-            font-family: "Segoe UI", sans-serif;
-            padding: 40px;
-            direction: rtl;
-        }
-        h1 {
-            font-size: 32px;
-            margin-bottom: 20px;
-        }
-        h2 {
-            margin-top: 40px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-            color: #ffd700;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background-color: #1e1e1e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #333;
-            text-align: center;
-        }
-        th {
-            background-color: #222;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background-color: #191919;
-        }
-        ul li {
-            margin: 8px 0;
-        }
-        ul strong {
-            color: #1e90ff;
-        }
-        .back-to-quiz {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 10px 20px;
-            background-color: #1e90ff;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        .back-to-quiz:hover {
-            background-color: #0077cc;
-        }
-        .background-gif {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.05;
-            z-index: -1;
-        }
-    </style>
-</head>
-<body>
-    <img src="/assets/background.gif" class="background-gif" alt="רקע" />
-    <h1>📊 ממשק ניהול - Dashboard</h1>
-
-    <h2>✅ סטטיסטיקה כללית</h2>
-    <ul>
-        <li>👥 משתמשים רשומים: <strong>@Model.AllUsers.Count</strong></li>
-        <li>🟢 מחוברים כרגע: <strong>@Model.OnlineUsers.Count</strong></li>
-        <li>🚩 מסומנים כ‏Cheaters: <strong>@Model.Cheaters.Count</strong></li>
-        <li>🔒 חסומים: <strong>@Model.BannedUsers.Count</strong></li>
-        <li>📈 ממוצע הצלחה: <strong>@Model.AverageSuccessRate.ToString("0.0")%</strong></li>
-    </ul>
-
-    <h2>📶 משתמשים מחוברים כרגע</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
-        @foreach (var user in Model.OnlineUsers)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-            </tr>
-        }
-    </table>
-
-    <h2>🏆 טבלת מובילים</h2>
-    <table>
-        <tr><th>מיקום</th><th>שם משתמש</th><th>תשובות נכונות</th></tr>
-        @for (int i = 0; i < Model.TopUsers.Count; i++)
-        {
-            <tr>
-                <td>@(i + 1)</td>
-                <td>@Model.TopUsers[i].Username</td>
-                <td>@Model.TopUsers[i].CorrectAnswers</td>
-            </tr>
-        }
-    </table>
-
-    <h2>🚨 Cheaters</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
-        @foreach (var user in Model.Cheaters)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-            </tr>
-        }
-    </table>
-
-    <h2>🔒 חסומים</h2>
-    <table>
-        <tr><th>שם משתמש</th><th>נענו</th><th>נכונות</th><th>הצלחה</th></tr>
-        @foreach (var user in Model.BannedUsers)
-        {
-            <tr>
-                <td>@user.Username</td>
-                <td>@user.TotalAnswered</td>
-                <td>@user.CorrectAnswers</td>
-                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
-            </tr>
-        }
-    </table>
-
-    <a href="/Index" class="back-to-quiz">⬅ חזרה לחידון</a>
-</body>
-</html>
