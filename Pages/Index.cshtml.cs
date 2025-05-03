@@ -48,6 +48,13 @@ namespace HelloWorldWeb.Pages
             var user = await _authService.GetUser(Username);
             if (user != null)
             {
+                if (user.IsBanned)
+                {
+                    HttpContext.Session.Clear();
+                    Response.Cookies.Delete("Username");
+                    return RedirectToPage("/Login");
+                }
+
                 user.LastSeen = DateTime.UtcNow;
                 await _authService.UpdateUser(user);
             }
@@ -73,8 +80,12 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Login");
 
             var user = await _authService.GetUser(Username);
-            if (user == null)
+            if (user == null || user.IsBanned)
+            {
+                HttpContext.Session.Clear();
+                Response.Cookies.Delete("Username");
                 return RedirectToPage("/Login");
+            }
 
             if (Request.Form.ContainsKey("reset"))
             {
@@ -108,7 +119,6 @@ namespace HelloWorldWeb.Pages
                 MoveCorrectImages();
             }
 
-            user.LastSeen = DateTime.UtcNow;
             await _authService.UpdateUser(user);
 
             var sessionStartStr = HttpContext.Session.GetString("SessionStart");
@@ -119,7 +129,7 @@ namespace HelloWorldWeb.Pages
             var rapidTotal = HttpContext.Session.GetInt32("RapidTotal") ?? 0;
             var rapidCorrect = HttpContext.Session.GetInt32("RapidCorrect") ?? 0;
 
-            if (elapsedSeconds <= 300)
+            if (elapsedSeconds <= 60)
             {
                 HttpContext.Session.SetInt32("RapidTotal", rapidTotal + 1);
                 if (IsCorrect)
@@ -146,10 +156,6 @@ namespace HelloWorldWeb.Pages
                 HttpContext.Session.SetInt32("RapidCorrect", 0);
                 return RedirectToPage("/Cheater");
             }
-
-            // ✅ עדכון מונה מחוברים גם לאחר POST
-            OnlineCount = (await _authService.GetAllUsers())
-                .Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).Count();
 
             return Page();
         }
