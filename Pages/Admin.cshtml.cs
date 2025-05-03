@@ -27,100 +27,79 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            if (!IsAdmin())
-            {
-                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
-                return RedirectToPage("/Index");
-            }
-
-            Console.WriteLine("🔄 [OnGet] Admin access confirmed.");
             await LoadData();
             return Page();
         }
 
         public async Task<IActionResult> OnPostUnflagAsync(string username)
         {
-            if (!IsAdmin()) return RedirectToPage("/Index");
-
-            Console.WriteLine($"🟢 [Unflag] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsCheater = false;
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
+                ViewData["SuccessMessage"] = $"✅ המשתמש '{username}' שוחרר מכל ההגבלות.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            return RedirectToPage();
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostBanAsync(string username)
         {
-            if (!IsAdmin()) return RedirectToPage("/Index");
-
-            Console.WriteLine($"🚫 [Ban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = true;
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
+                ViewData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            return RedirectToPage();
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
         {
-            if (!IsAdmin()) return RedirectToPage("/Index");
-
-            Console.WriteLine($"🔓 [Unban] Requested for: {username}");
             var user = await _authService.GetUser(username);
             if (user != null)
             {
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
+                ViewData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            return RedirectToPage();
+            await LoadData();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
         {
-            if (!IsAdmin()) return RedirectToPage("/Index");
-
-            Console.WriteLine($"🗑️ [Delete] Requested for: {username}");
             var success = await _authService.DeleteUser(username);
             if (success)
             {
-                TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
+                ViewData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
             }
             else
             {
-                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
+                ViewData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
             }
 
-            return RedirectToPage();
-        }
-
-        private bool IsAdmin()
-        {
-            var sessionUser = HttpContext.Session.GetString("Username");
-            return sessionUser == "Admin";
+            await LoadData();
+            return Page();
         }
 
         private async Task LoadData()
