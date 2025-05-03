@@ -29,7 +29,7 @@ namespace HelloWorldWeb.Pages
         {
             if (!IsAdmin())
             {
-                ViewData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
+                TempData["SuccessMessage"] = "❌ Access denied. Only admins can access this page.";
                 return RedirectToPage("/Index");
             }
 
@@ -49,15 +49,14 @@ namespace HelloWorldWeb.Pages
                 user.IsCheater = false;
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                ViewData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
+                TempData["SuccessMessage"] = $"✅ שוחרר המשתמש '{username}' מכל ההגבלות.";
             }
             else
             {
-                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            await LoadData();
-            return Page();
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostBanAsync(string username)
@@ -70,15 +69,14 @@ namespace HelloWorldWeb.Pages
             {
                 user.IsBanned = true;
                 await _authService.UpdateUser(user);
-                ViewData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
+                TempData["SuccessMessage"] = $"🚫 המשתמש '{username}' נחסם.";
             }
             else
             {
-                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            await LoadData();
-            return Page();
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostUnbanAsync(string username)
@@ -91,15 +89,14 @@ namespace HelloWorldWeb.Pages
             {
                 user.IsBanned = false;
                 await _authService.UpdateUser(user);
-                ViewData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
+                TempData["SuccessMessage"] = $"🔓 המשתמש '{username}' שוחרר.";
             }
             else
             {
-                ViewData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
+                TempData["SuccessMessage"] = $"❌ המשתמש '{username}' לא נמצא.";
             }
 
-            await LoadData();
-            return Page();
+            return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(string username)
@@ -110,15 +107,14 @@ namespace HelloWorldWeb.Pages
             var success = await _authService.DeleteUser(username);
             if (success)
             {
-                ViewData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
+                TempData["SuccessMessage"] = $"🗑️ המשתמש '{username}' נמחק.";
             }
             else
             {
-                ViewData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
+                TempData["SuccessMessage"] = $"❌ שגיאה במחיקת המשתמש '{username}'.";
             }
 
-            await LoadData();
-            return Page();
+            return RedirectToPage();
         }
 
         private bool IsAdmin()
