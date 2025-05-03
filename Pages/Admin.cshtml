@@ -76,13 +76,22 @@
 
     <h2>🏆 טבלת מובילים</h2>
     <table>
-        <tr><th>מיקום</th><th>שם משתמש</th><th>תשובות נכונות</th></tr>
+        <tr>
+            <th>מיקום</th>
+            <th>שם משתמש</th>
+            <th>נענו</th>
+            <th>נכונות</th>
+            <th>הצלחה</th>
+        </tr>
         @for (int i = 0; i < Model.TopUsers.Count; i++)
         {
+            var user = Model.TopUsers[i];
             <tr>
                 <td>@(i + 1)</td>
-                <td>@Model.TopUsers[i].Username</td>
-                <td>@Model.TopUsers[i].CorrectAnswers</td>
+                <td>@user.Username</td>
+                <td>@user.TotalAnswered</td>
+                <td>@user.CorrectAnswers</td>
+                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
             </tr>
         }
     </table>
