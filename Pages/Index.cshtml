@@ -134,7 +134,12 @@ function logout() {
     }
 
     window.addEventListener("load", fetchStats);
-    setInterval(fetchStats, 15000); // עדכון כל 15 שניות
+    setInterval(fetchStats, 15000);
+
+    // ✅ עדכון מחוברים אחרי כל שליחה
+    document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", () => setTimeout(fetchStats, 2000));
+    });
 </script>
 
 <!-- הגנה מפתיחת DevTools -->
