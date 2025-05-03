@@ -81,7 +81,6 @@ namespace HelloWorldWeb.Pages
                 user.CorrectAnswers = 0;
                 user.TotalAnswered = 0;
                 user.IsCheater = false;
-                user.LastSeen = DateTime.UtcNow;
                 await _authService.UpdateUser(user);
                 return RedirectToPage("/Index");
             }
@@ -109,7 +108,6 @@ namespace HelloWorldWeb.Pages
                 MoveCorrectImages();
             }
 
-            // ✅ עדכון זמן פעילות אחרי כל תשובה
             user.LastSeen = DateTime.UtcNow;
             await _authService.UpdateUser(user);
 
@@ -148,6 +146,10 @@ namespace HelloWorldWeb.Pages
                 HttpContext.Session.SetInt32("RapidCorrect", 0);
                 return RedirectToPage("/Cheater");
             }
+
+            // ✅ עדכון מונה מחוברים גם לאחר POST
+            OnlineCount = (await _authService.GetAllUsers())
+                .Where(u => u.LastSeen != null && u.LastSeen > DateTime.UtcNow.AddMinutes(-5)).Count();
 
             return Page();
         }
