@@ -111,10 +111,10 @@
     <img src="/assets/background.gif" class="background-gif" alt="רקע" />
     <h1>📊 ממשק ניהול - Dashboard</h1>
 
-    @if (TempData["SuccessMessage"] != null)
+    @if (ViewData["SuccessMessage"] != null)
     {
         <div style="background-color:#28a428; padding:12px; border-radius:6px; margin:20px 0; color:white; font-weight:bold; text-align:center;">
-            @TempData["SuccessMessage"]
+            @ViewData["SuccessMessage"]
         </div>
     }
 
