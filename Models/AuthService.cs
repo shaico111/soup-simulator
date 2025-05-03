@@ -20,18 +20,13 @@ namespace HelloWorldWeb.Models
 
         public AuthService(IConfiguration config)
         {
-            Console.WriteLine("🚀 AuthService initializing...");
-
             _url = config["SUPABASE_URL"]!;
             _apiKey = config["SUPABASE_KEY"]!;
 
             if (string.IsNullOrWhiteSpace(_url) || string.IsNullOrWhiteSpace(_apiKey))
             {
-                Console.WriteLine("❌ Missing Supabase ENV vars.");
                 throw new Exception("Missing Supabase ENV vars.");
             }
-
-            Console.WriteLine("✅ Supabase config OK");
 
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("apikey", _apiKey);
@@ -47,17 +42,14 @@ namespace HelloWorldWeb.Models
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("❌ Auth error: " + ex.Message);
                 return null;
             }
         }
 
         public async Task<bool> Register(string username, string password)
         {
-            Console.WriteLine($"📥 Attempting to register user: {username}");
-
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                 return false;
 
@@ -69,10 +61,7 @@ namespace HelloWorldWeb.Models
 
             var existingUser = await GetUser(username);
             if (existingUser != null)
-            {
-                Console.WriteLine("⚠️ User already exists.");
                 return false;
-            }
 
             var newUser = new[]
             {
@@ -91,13 +80,6 @@ namespace HelloWorldWeb.Models
             var content = new StringContent(JsonSerializer.Serialize(newUser), Encoding.UTF8, "application/json");
             var res = await _client.PostAsync($"{_url}/rest/v1/users", content);
 
-            Console.WriteLine($"📡 Register response: {res.StatusCode}");
-            if (!res.IsSuccessStatusCode)
-            {
-                var errorContent = await res.Content.ReadAsStringAsync();
-                Console.WriteLine($"❌ Register failed: {errorContent}");
-            }
-
             return res.IsSuccessStatusCode;
         }
 
@@ -110,18 +92,14 @@ namespace HelloWorldWeb.Models
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("❌ GetUser error: " + ex.Message);
                 return null;
             }
         }
 
         public async Task UpdateUser(User updatedUser)
         {
-            Console.WriteLine($"🔄 UpdateUser called for {updatedUser.Username}");
-            Console.WriteLine($"👉 IsCheater = {updatedUser.IsCheater}, IsBanned = {updatedUser.IsBanned}, Correct = {updatedUser.CorrectAnswers}, Total = {updatedUser.TotalAnswered}");
-
             var patch = new[]
             {
                 new {
@@ -141,17 +119,6 @@ namespace HelloWorldWeb.Models
             request.Headers.Add("Prefer", "return=representation");
 
             var response = await _client.SendAsync(request);
-            Console.WriteLine($"📡 PATCH Response status: {response.StatusCode}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"❌ PATCH failed: {errorContent}");
-            }
-            else
-            {
-                Console.WriteLine($"✅ User {updatedUser.Username} successfully updated.");
-            }
         }
 
         public async Task<List<User>> GetAllUsers()
@@ -162,36 +129,24 @@ namespace HelloWorldWeb.Models
                 var json = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("❌ GetAllUsers error: " + ex.Message);
                 return new List<User>();
             }
         }
 
         public async Task<bool> DeleteUser(string username)
         {
-            Console.WriteLine($"🗑️ Attempting to delete user: {username}");
-
             try
             {
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{_url}/rest/v1/users?Username=eq.{username}");
                 request.Headers.Add("Prefer", "return=representation");
                 var response = await _client.SendAsync(request);
 
-                Console.WriteLine($"📡 DELETE Response: {response.StatusCode}");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var err = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("❌ DeleteUser failed: " + err);
-                }
-
                 return response.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("❌ DeleteUser error: " + ex.Message);
                 return false;
             }
         }
