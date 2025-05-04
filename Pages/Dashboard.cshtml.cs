@@ -12,7 +12,7 @@ namespace HelloWorldWeb.Pages
     {
         private readonly AuthService _authService;
 
-        public AdminModel(AuthService authService)
+        public DashboardModel(AuthService authService)
         {
             _authService = authService;
         }
