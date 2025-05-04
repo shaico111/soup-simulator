@@ -65,11 +65,22 @@
 
     <h2>📶 משתמשים מחוברים כרגע</h2>
     <table>
-        <tr><th>שם משתמש</th></tr>
-        @foreach (var user in Model.OnlineUsers)
+        <tr>
+            <th>מיקום</th>
+            <th>שם משתמש</th>
+            <th>נענו</th>
+            <th>נכונות</th>
+            <th>הצלחה</th>
+        </tr>
+        @for (int i = 0; i < Model.OnlineUsers.Count; i++)
         {
+            var user = Model.OnlineUsers[i];
             <tr>
+                <td>@(i + 1)</td>
                 <td>@user.Username</td>
+                <td>@user.TotalAnswered</td>
+                <td>@user.CorrectAnswers</td>
+                <td>@(user.TotalAnswered > 0 ? ((double)user.CorrectAnswers / user.TotalAnswered).ToString("0%") : "N/A")</td>
             </tr>
         }
     </table>
