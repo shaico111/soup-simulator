@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HelloWorldWeb.Pages
 {
-    public class AdminModel : PageModel
+    public class DashboardModel : PageModel
     {
         private readonly AuthService _authService;
 
