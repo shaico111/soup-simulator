@@ -12,6 +12,7 @@ body {
 }
 
 .background-gif {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -334,7 +335,6 @@ button.answer-btn:hover {
 }
 
 .back-to-quiz {
-    position: fixed;
     top: 10px;
     left: 10px;
     z-index: 1000;
