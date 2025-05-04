@@ -25,13 +25,19 @@ function logout() {
 }
 </script>
 
-<!-- כפתור טבלת מובילים + ניהול -->
+<!-- כפתורי ניהול ומובילים (ימין עליון) -->
 <div style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
-    <a href="/Leaderboard" class="next-question-btn">🏆 מובילים</a>
+    <a href="/Leaderboard" class="next-question-btn" style="text-decoration: none;">🏆 מובילים</a>
     @if (Model.Username == "Admin")
     {
-        <a href="/Admin" class="next-question-btn">🛠️ ניהול</a>
+        <a href="/Admin" class="next-question-btn" style="text-decoration: none;">🛠️ ניהול</a>
     }
+</div>
+
+<!-- כפתור כוכב (שמאל תחתון) -->
+<div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;">
+    <a href="https://github.com/yanivbahalul/noodles-simulator" target="_blank"
+       style="font-size: 28px; text-decoration: none;" title="⭐ דרג את הפרויקט שלי">⭐</a>
 </div>
 
 <!-- give me star -->
