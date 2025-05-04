@@ -40,9 +40,8 @@ namespace HelloWorldWeb.Models
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[Authenticate] Error: {ex.Message}");
                 return null;
             }
         }
@@ -78,8 +77,6 @@ namespace HelloWorldWeb.Models
 
             var content = new StringContent(JsonSerializer.Serialize(newUser), Encoding.UTF8, "application/json");
             var res = await _client.PostAsync($"{_url}/rest/v1/users", content);
-
-            Console.WriteLine($"[Register] Status: {res.StatusCode}");
             return res.IsSuccessStatusCode;
         }
 
@@ -92,9 +89,8 @@ namespace HelloWorldWeb.Models
                 var users = JsonSerializer.Deserialize<List<User>>(json);
                 return users?.FirstOrDefault();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[GetUser] Error: {ex.Message}");
                 return null;
             }
         }
@@ -104,7 +100,7 @@ namespace HelloWorldWeb.Models
             var patch = new[]
             {
                 new {
-                    Username = updatedUser.Username, // חובה כדי לוודא התאמה לפי Primary Key
+                    Username = updatedUser.Username,
                     CorrectAnswers = updatedUser.CorrectAnswers,
                     TotalAnswered = updatedUser.TotalAnswered,
                     IsCheater = updatedUser.IsCheater,
@@ -121,8 +117,6 @@ namespace HelloWorldWeb.Models
             request.Headers.Add("Prefer", "return=representation");
 
             var response = await _client.SendAsync(request);
-            Console.WriteLine($"[UpdateUser] Status: {response.StatusCode}");
-
             if (!response.IsSuccessStatusCode)
                 throw new Exception($"UpdateUser failed for {updatedUser.Username}");
         }
@@ -135,9 +129,8 @@ namespace HelloWorldWeb.Models
                 var json = await res.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[GetAllUsers] Error: {ex.Message}");
                 return new List<User>();
             }
         }
@@ -149,13 +142,10 @@ namespace HelloWorldWeb.Models
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{_url}/rest/v1/users?Username=eq.{username}");
                 request.Headers.Add("Prefer", "return=representation");
                 var response = await _client.SendAsync(request);
-
-                Console.WriteLine($"[DeleteUser] Status: {response.StatusCode}");
                 return response.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[DeleteUser] Error: {ex.Message}");
                 return false;
             }
         }
@@ -167,9 +157,8 @@ namespace HelloWorldWeb.Models
                 var res = await _client.GetAsync($"{_url}/rest/v1/users?select=Username&limit=1");
                 return res.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[CheckConnection] Error: {ex.Message}");
                 return false;
             }
         }
