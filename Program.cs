@@ -23,7 +23,6 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(1);
 });
 
-// מדיניות עוגיות
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.Lax;
@@ -31,7 +30,6 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.Secure = CookieSecurePolicy.SameAsRequest;
 });
 
-// ביטול לוגים מיותרים
 builder.Logging.ClearProviders();
 
 var app = builder.Build();
@@ -44,7 +42,6 @@ app.UseSession();
 app.UseAuthorization();
 app.MapRazorPages();
 
-// ✅ מסלול למחיקת session + cookie
 app.MapPost("/clear-session", async context =>
 {
     context.Session.Clear();
@@ -53,7 +50,6 @@ app.MapPost("/clear-session", async context =>
     await context.Response.CompleteAsync();
 });
 
-// ✅ הדפסת הפעלה
 app.Lifetime.ApplicationStarted.Register(() =>
 {
     var url = app.Urls.FirstOrDefault() ?? "http://localhost:5000";
@@ -86,7 +82,6 @@ if (Directory.Exists(progressDir))
     }
 }
 
-// ✅ Render: הגדרת פורט מהסביבה
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://*:{port}");
 
