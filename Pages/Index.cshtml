@@ -75,6 +75,9 @@ function logout() {
     }
     else
     {
+        <div style="text-align: center; margin-bottom: 10px; font-size: 22px; font-weight: bold; color: #4CAF50;">
+            @(Model.GameMode == "soup" ? "מצב מרק" : "מצב נודלס")
+        </div>
         <img src="/images/@(Model.GameMode)/@Model.QuestionImage" alt="שאלה" loading="lazy" />
 
         <form method="post">

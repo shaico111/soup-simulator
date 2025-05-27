@@ -258,56 +258,72 @@ namespace HelloWorldWeb.Pages
         {
             var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", GameMode);
 
-            // Create directory if it doesn't exist
             if (!Directory.Exists(imagesDir))
-            {
                 Directory.CreateDirectory(imagesDir);
-            }
 
-            var allImages = Directory.GetFiles(imagesDir)
-                .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg") || f.EndsWith(".webp"))
-                .Select(Path.GetFileName)
-                .OrderBy(name => name)
-                .ToList();
-
-            // If no images found, create empty state
-            if (allImages.Count == 0)
+            if (GameMode == "soup")
             {
-                QuestionImage = null;
-                ShuffledAnswers = new Dictionary<string, string>();
-                return;
+                // Find all soup question sets
+                var questionFiles = Directory.GetFiles(imagesDir, "soup*_q.jpg").OrderBy(f => f).ToList();
+                if (questionFiles.Count == 0)
+                {
+                    QuestionImage = null;
+                    ShuffledAnswers = new Dictionary<string, string>();
+                    return;
+                }
+                var rnd = new Random();
+                var chosenQ = questionFiles[rnd.Next(questionFiles.Count)];
+                var baseName = Path.GetFileNameWithoutExtension(chosenQ).Replace("_q", "");
+                QuestionImage = $"{baseName}_q.jpg";
+                var correct = $"{baseName}_correct.jpg";
+                var wrongs = new List<string>();
+                foreach (var suffix in new[] { "a", "b", "c", "d", "e", "f", "g", "h" })
+                {
+                    var fname = $"{baseName}_{suffix}.jpg";
+                    if (System.IO.File.Exists(Path.Combine(imagesDir, fname)))
+                        wrongs.Add(fname);
+                }
+                var answers = new List<(string, string)> { ("correct", correct) };
+                for (int i = 0; i < wrongs.Count; i++)
+                    answers.Add((Convert.ToChar('a' + i).ToString(), wrongs[i]));
+                ShuffledAnswers = answers.OrderBy(x => Guid.NewGuid()).ToDictionary(x => x.Item1, x => x.Item2);
             }
-
-            var answersPerQuestion = GameMode == "soup" ? 10 : 5;
-            var grouped = new List<List<string>>();
-            for (int i = 0; i + answersPerQuestion < allImages.Count; i += answersPerQuestion + 1)
-                grouped.Add(allImages.GetRange(i, answersPerQuestion + 1));
-
-            if (grouped.Count == 0)
+            else // noodles mode
             {
-                QuestionImage = null;
-                ShuffledAnswers = new Dictionary<string, string>();
-                return;
+                // Find all noodles question sets
+                var questionFiles = Directory.GetFiles(imagesDir, "noodle*_q.jpg").OrderBy(f => f).ToList();
+                if (questionFiles.Count == 0)
+                {
+                    QuestionImage = null;
+                    ShuffledAnswers = new Dictionary<string, string>();
+                    return;
+                }
+                var rnd = new Random();
+                var chosenQ = questionFiles[rnd.Next(questionFiles.Count)];
+                var baseName = Path.GetFileNameWithoutExtension(chosenQ).Replace("_q", "");
+                // Make sure all required files exist
+                var correct = $"{baseName}_correct.jpg";
+                var wrongs = new List<string>();
+                foreach (var suffix in new[] { "a", "b", "c" })
+                {
+                    var fname = $"{baseName}_{suffix}.jpg";
+                    if (System.IO.File.Exists(Path.Combine(imagesDir, fname)))
+                        wrongs.Add(fname);
+                }
+                // Only proceed if all files exist
+                if (!System.IO.File.Exists(Path.Combine(imagesDir, correct)) || wrongs.Count != 3)
+                {
+                    // Skip this set and try another
+                    LoadRandomQuestion();
+                    return;
+                }
+                QuestionImage = $"{baseName}_q.jpg";
+                var answers = new List<(string, string)> { ("correct", correct) };
+                for (int i = 0; i < wrongs.Count; i++)
+                    answers.Add((Convert.ToChar('a' + i).ToString(), wrongs[i]));
+                // Shuffle and take only 4 options
+                ShuffledAnswers = answers.OrderBy(x => Guid.NewGuid()).Take(4).ToDictionary(x => x.Item1, x => x.Item2);
             }
-
-            var chosen = grouped[new Random().Next(grouped.Count)];
-            QuestionImage = chosen[0];
-            var correct = chosen[1];
-            var wrong = chosen.Skip(2).Take(answersPerQuestion - 1).ToList();
-
-            var answers = new List<(string, string)>
-            {
-                ("correct", correct)
-            };
-
-            for (int i = 0; i < wrong.Count; i++)
-            {
-                answers.Add(ValueTuple.Create(((char)('a' + i)).ToString(), wrong[i]));
-            }
-
-            ShuffledAnswers = answers
-                .OrderBy(x => Guid.NewGuid())
-                .ToDictionary(x => x.Item1, x => x.Item2);
         }
     }
 }
