@@ -82,7 +82,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
-            GameMode = Request.Form["gameMode"] ?? "noodles";
+            GameMode = Request.Form["gameMode"].ToString() ?? "noodles";
             Username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrEmpty(Username))
                 return RedirectToPage("/Login");
@@ -226,7 +226,7 @@ namespace HelloWorldWeb.Pages
             if (!Directory.Exists(correctPath))
                 Directory.CreateDirectory(correctPath);
 
-            var allFiles = new[] {
+            var allFiles = new List<string> {
                 QuestionImage,
                 ShuffledAnswers["correct"],
                 ShuffledAnswers["a"],
@@ -236,13 +236,13 @@ namespace HelloWorldWeb.Pages
 
             if (GameMode == "soup")
             {
-                allFiles = allFiles.Concat(new[] {
+                allFiles.AddRange(new[] {
                     ShuffledAnswers["d"],
                     ShuffledAnswers["e"],
                     ShuffledAnswers["f"],
                     ShuffledAnswers["g"],
                     ShuffledAnswers["h"]
-                }).ToArray();
+                });
             }
 
             foreach (var file in allFiles)
