@@ -258,11 +258,25 @@ namespace HelloWorldWeb.Pages
         {
             var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", GameMode);
 
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(imagesDir))
+            {
+                Directory.CreateDirectory(imagesDir);
+            }
+
             var allImages = Directory.GetFiles(imagesDir)
                 .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg") || f.EndsWith(".webp"))
                 .Select(Path.GetFileName)
                 .OrderBy(name => name)
                 .ToList();
+
+            // If no images found, create empty state
+            if (allImages.Count == 0)
+            {
+                QuestionImage = null;
+                ShuffledAnswers = new Dictionary<string, string>();
+                return;
+            }
 
             var answersPerQuestion = GameMode == "soup" ? 10 : 5;
             var grouped = new List<List<string>>();
@@ -271,7 +285,7 @@ namespace HelloWorldWeb.Pages
 
             if (grouped.Count == 0)
             {
-                QuestionImage = "placeholder.jpg";
+                QuestionImage = null;
                 ShuffledAnswers = new Dictionary<string, string>();
                 return;
             }

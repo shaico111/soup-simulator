@@ -66,55 +66,65 @@ function logout() {
 </div>
 
 <div class="quiz-container">
-    <img src="/images/@(Model.GameMode)/@Model.QuestionImage" alt="שאלה" loading="lazy" />
-
-    <form method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="questionImage" value="@Model.QuestionImage" />
-        <input type="hidden" name="answersJson" value='@Newtonsoft.Json.JsonConvert.SerializeObject(Model.ShuffledAnswers)' />
-        <input type="hidden" name="gameMode" value="@Model.GameMode" />
-
-        <div class="answers @(Model.GameMode == "soup" ? "soup-answers" : "")">
-            @foreach (var answer in Model.ShuffledAnswers)
-            {
-                var answerClass = "";
-                if (Model.AnswerChecked)
-                {
-                    answerClass = answer.Key == "correct" ? "correct" :
-                                  (Model.SelectedAnswer == answer.Key ? "incorrect" : "");
-                }
-
-                <button type="submit"
-                        name="answer"
-                        value="@answer.Key"
-                        class="answer-btn @answerClass"
-                        @(Model.AnswerChecked ? "disabled" : "")>
-                    <img src="/images/@(Model.GameMode)/@answer.Value" alt="תשובה" loading="lazy" />
-                </button>
-            }
-        </div>
-    </form>
-
-    @if (Model.AnswerChecked)
+    @if (Model.QuestionImage == null)
     {
-        <p style="margin-top:15px; font-size:18px; color:@(Model.IsCorrect ? "#32cd32" : "#ff4c4c"); font-weight: bold;">
-            @(Model.IsCorrect ? "תשובה נכונה!" : "תשובה שגויה")
-        </p>
+        <div style="text-align: center; padding: 20px;">
+            <h2>No images available</h2>
+            <p>Please add images to the @Model.GameMode directory to start playing.</p>
+        </div>
     }
-
-    <div class="button-row">
-        <form method="get">
-            <input type="hidden" name="gameMode" value="@Model.GameMode" />
-            <button class="next-question-btn">שאלה הבאה</button>
-        </form>
+    else
+    {
+        <img src="/images/@(Model.GameMode)/@Model.QuestionImage" alt="שאלה" loading="lazy" />
 
         <form method="post">
             @Html.AntiForgeryToken()
-            <input type="hidden" name="reset" value="1" />
+            <input type="hidden" name="questionImage" value="@Model.QuestionImage" />
+            <input type="hidden" name="answersJson" value='@Newtonsoft.Json.JsonConvert.SerializeObject(Model.ShuffledAnswers)' />
             <input type="hidden" name="gameMode" value="@Model.GameMode" />
-            <button class="next-question-btn" style="background-color: #aa3333;">איפוס שאלות</button>
+
+            <div class="answers @(Model.GameMode == "soup" ? "soup-answers" : "")">
+                @foreach (var answer in Model.ShuffledAnswers)
+                {
+                    var answerClass = "";
+                    if (Model.AnswerChecked)
+                    {
+                        answerClass = answer.Key == "correct" ? "correct" :
+                                      (Model.SelectedAnswer == answer.Key ? "incorrect" : "");
+                    }
+
+                    <button type="submit"
+                            name="answer"
+                            value="@answer.Key"
+                            class="answer-btn @answerClass"
+                            @(Model.AnswerChecked ? "disabled" : "")>
+                        <img src="/images/@(Model.GameMode)/@answer.Value" alt="תשובה" loading="lazy" />
+                    </button>
+                }
+            </div>
         </form>
-    </div>
+
+        @if (Model.AnswerChecked)
+        {
+            <p style="margin-top:15px; font-size:18px; color:@(Model.IsCorrect ? "#32cd32" : "#ff4c4c"); font-weight: bold;">
+                @(Model.IsCorrect ? "תשובה נכונה!" : "תשובה שגויה")
+            </p>
+        }
+
+        <div class="button-row">
+            <form method="get">
+                <input type="hidden" name="gameMode" value="@Model.GameMode" />
+                <button class="next-question-btn">שאלה הבאה</button>
+            </form>
+
+            <form method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="reset" value="1" />
+                <input type="hidden" name="gameMode" value="@Model.GameMode" />
+                <button class="next-question-btn" style="background-color: #aa3333;">איפוס שאלות</button>
+            </form>
+        </div>
+    }
 </div>
 
 <div id="stats-toggle" onclick="toggleStats()">⬆️</div>
