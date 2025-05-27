@@ -8,6 +8,8 @@ namespace HelloWorldWeb.Models
         public string Password { get; set; }
         public int CorrectAnswers { get; set; }
         public int TotalAnswered { get; set; }
+        public int SoupCorrectAnswers { get; set; }
+        public int SoupTotalAnswered { get; set; }
         public bool IsCheater { get; set; } = false;
         public bool IsBanned { get; set; } = false;
         public DateTime? LastSeen { get; set; }

@@ -48,15 +48,33 @@ function logout() {
     🟢 מחוברים כעת: <strong id="online-count">@Model.OnlineCount</strong>
 </p>
 
+<div class="game-mode-selector" style="text-align: center; margin-bottom: 20px;">
+    <form method="post" style="display: inline-block;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="gameMode" value="noodles" />
+        <button type="submit" class="mode-btn @(Model.GameMode == "noodles" ? "active" : "")" style="margin-right: 10px;">
+            🍜 נודלס
+        </button>
+    </form>
+    <form method="post" style="display: inline-block;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="gameMode" value="soup" />
+        <button type="submit" class="mode-btn @(Model.GameMode == "soup" ? "active" : "")">
+            🥣 מרק
+        </button>
+    </form>
+</div>
+
 <div class="quiz-container">
-    <img src="/images/@Model.QuestionImage" alt="שאלה" loading="lazy" />
+    <img src="/images/@(Model.GameMode)/@Model.QuestionImage" alt="שאלה" loading="lazy" />
 
     <form method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" name="questionImage" value="@Model.QuestionImage" />
         <input type="hidden" name="answersJson" value='@Newtonsoft.Json.JsonConvert.SerializeObject(Model.ShuffledAnswers)' />
+        <input type="hidden" name="gameMode" value="@Model.GameMode" />
 
-        <div class="answers">
+        <div class="answers @(Model.GameMode == "soup" ? "soup-answers" : "")">
             @foreach (var answer in Model.ShuffledAnswers)
             {
                 var answerClass = "";
@@ -71,7 +89,7 @@ function logout() {
                         value="@answer.Key"
                         class="answer-btn @answerClass"
                         @(Model.AnswerChecked ? "disabled" : "")>
-                    <img src="/images/@answer.Value" alt="תשובה" loading="lazy" />
+                    <img src="/images/@(Model.GameMode)/@answer.Value" alt="תשובה" loading="lazy" />
                 </button>
             }
         </div>
@@ -86,12 +104,14 @@ function logout() {
 
     <div class="button-row">
         <form method="get">
+            <input type="hidden" name="gameMode" value="@Model.GameMode" />
             <button class="next-question-btn">שאלה הבאה</button>
         </form>
 
         <form method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" name="reset" value="1" />
+            <input type="hidden" name="gameMode" value="@Model.GameMode" />
             <button class="next-question-btn" style="background-color: #aa3333;">איפוס שאלות</button>
         </form>
     </div>
@@ -101,22 +121,83 @@ function logout() {
 
 <div id="stats-panel" class="hidden">
     <h3>📊 סטטיסטיקה אישית</h3>
-    <ul>
-        <li>✅ תשובות נכונות: <span id="stat-correct">0</span></li>
-        <li>📋 שאלות שנענו: <span id="stat-total">0</span></li>
-        <li>📈 אחוז הצלחה: <span id="stat-success">0%</span></li>
-    </ul>
+    <div class="stats-container">
+        <div class="stats-section">
+            <h4>🍜 נודלס</h4>
+            <ul>
+                <li>✅ תשובות נכונות: <span id="stat-correct-noodles">0</span></li>
+                <li>📋 שאלות שנענו: <span id="stat-total-noodles">0</span></li>
+                <li>📈 אחוז הצלחה: <span id="stat-success-noodles">0%</span></li>
+            </ul>
+        </div>
+        <div class="stats-section">
+            <h4>🥣 מרק</h4>
+            <ul>
+                <li>✅ תשובות נכונות: <span id="stat-correct-soup">0</span></li>
+                <li>📋 שאלות שנענו: <span id="stat-total-soup">0</span></li>
+                <li>📈 אחוז הצלחה: <span id="stat-success-soup">0%</span></li>
+            </ul>
+        </div>
+    </div>
 </div>
+
+<style>
+.game-mode-selector .mode-btn {
+    padding: 10px 20px;
+    border: 2px solid #4CAF50;
+    background-color: white;
+    color: #4CAF50;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.game-mode-selector .mode-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.soup-answers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.stats-section {
+    flex: 1;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+}
+
+.stats-section h4 {
+    margin-top: 0;
+    text-align: center;
+    color: #333;
+}
+</style>
 
 <script>
     async function fetchStats() {
         try {
             const res = await fetch('/Stats?_=' + new Date().getTime());
             const data = await res.json();
-            if (data.correct !== undefined) {
-                document.getElementById('stat-correct').innerText = data.correct;
-                document.getElementById('stat-total').innerText = data.total;
-                document.getElementById('stat-success').innerText = data.successRate + '%';
+            if (data.noodles) {
+                document.getElementById('stat-correct-noodles').innerText = data.noodles.correct;
+                document.getElementById('stat-total-noodles').innerText = data.noodles.total;
+                document.getElementById('stat-success-noodles').innerText = data.noodles.successRate + '%';
+            }
+            if (data.soup) {
+                document.getElementById('stat-correct-soup').innerText = data.soup.correct;
+                document.getElementById('stat-total-soup').innerText = data.soup.total;
+                document.getElementById('stat-success-soup').innerText = data.soup.successRate + '%';
             }
             if (data.online !== undefined) {
                 document.getElementById('online-count').innerText = data.online;

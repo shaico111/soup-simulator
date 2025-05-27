@@ -1,7 +1,7 @@
 @page
 @model HelloWorldWeb.Pages.LeaderboardModel
 @{
-    ViewData["Title"] = "טבלת מובילים";
+    ViewData["Title"] = "Leaderboard";
 }
 
 <link rel="stylesheet" href="/css/site.css" />
@@ -15,32 +15,108 @@
 </div>
 
 <!-- כפתור חזרה לחידון – שמאל למעלה -->
-<form method="get" action="/Index" style="position: fixed; top: 20px; left: 20px;">
-    <button type="submit" class="logout-btn">⬅ חזרה לחידון</button>
-</form>
+<div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <a href="/" class="next-question-btn" style="text-decoration: none;">🏠 חזרה</a>
+</div>
+
+<!-- מצב משחק -->
+<div class="game-mode-selector" style="text-align: center; margin: 20px 0;">
+    <a href="/Leaderboard?gameMode=noodles" class="mode-btn @(Model.GameMode == "noodles" ? "active" : "")" style="margin-right: 10px;">
+        🍜 נודלס
+    </a>
+    <a href="/Leaderboard?gameMode=soup" class="mode-btn @(Model.GameMode == "soup" ? "active" : "")">
+        🥣 מרק
+    </a>
+</div>
 
 <!-- טבלת מובילים -->
-<div class="quiz-container" style="text-align:center;">
-    <h2 style="margin-bottom: 30px;">🏆 טבלת המובילים</h2>
-
-    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; color: white;">
+<div class="leaderboard-container">
+    <h2>🏆 טבלת מובילים - @(Model.GameMode == "noodles" ? "נודלס" : "מרק")</h2>
+    <table>
         <thead>
-            <tr style="background-color: #333;">
-                <th style="padding: 12px;">#</th>
-                <th style="padding: 12px;">שם משתמש</th>
-                <th style="padding: 12px;">תשובות נכונות</th>
+            <tr>
+                <th>מקום</th>
+                <th>שם משתמש</th>
+                <th>תשובות נכונות</th>
+                <th>סה"כ שאלות</th>
+                <th>אחוז הצלחה</th>
             </tr>
         </thead>
         <tbody>
-        @for (int i = 0; i < Model.SortedUsers.Count; i++)
-        {
-            var user = Model.SortedUsers[i];
-            <tr style="background-color:@(i % 2 == 0 ? "#222" : "#111");">
-                <td style="padding: 10px;">@(@i + 1)</td>
-                <td style="padding: 10px;">@user.Username</td>
-                <td style="padding: 10px;">@user.CorrectAnswers</td>
-            </tr>
-        }
+            @{
+                var topUsers = ViewData["TopUsers"] as IEnumerable<dynamic>;
+                var place = 1;
+                foreach (var user in topUsers)
+                {
+                    <tr>
+                        <td>@(place++)</td>
+                        <td>@user.Username</td>
+                        <td>@user.Correct</td>
+                        <td>@user.Total</td>
+                        <td>@user.SuccessRate%</td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
+
+<style>
+.game-mode-selector .mode-btn {
+    padding: 10px 20px;
+    border: 2px solid #4CAF50;
+    background-color: white;
+    color: #4CAF50;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.game-mode-selector .mode-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.leaderboard-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+</style>

@@ -28,9 +28,11 @@ namespace HelloWorldWeb.Pages
         public string Username { get; set; }
         public string ConnectionStatus { get; set; }
         public int OnlineCount { get; set; }
+        public string GameMode { get; set; } = "noodles";
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string gameMode = "noodles")
         {
+            GameMode = gameMode;
             Username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrEmpty(Username))
                 return RedirectToPage("/Login");
@@ -67,6 +69,12 @@ namespace HelloWorldWeb.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (Request.Form.ContainsKey("gameMode"))
+            {
+                GameMode = Request.Form["gameMode"];
+                return await OnGetAsync(GameMode);
+            }
+
             if (Request.Form.ContainsKey("logout"))
             {
                 HttpContext.Session.Clear();
@@ -74,6 +82,7 @@ namespace HelloWorldWeb.Pages
                 return RedirectToPage("/Index");
             }
 
+            GameMode = Request.Form["gameMode"] ?? "noodles";
             Username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrEmpty(Username))
                 return RedirectToPage("/Login");
@@ -91,11 +100,19 @@ namespace HelloWorldWeb.Pages
 
             if (Request.Form.ContainsKey("reset"))
             {
-                user.CorrectAnswers = 0;
-                user.TotalAnswered = 0;
+                if (GameMode == "noodles")
+                {
+                    user.CorrectAnswers = 0;
+                    user.TotalAnswered = 0;
+                }
+                else
+                {
+                    user.SoupCorrectAnswers = 0;
+                    user.SoupTotalAnswered = 0;
+                }
                 user.IsCheater = false;
                 await _authService.UpdateUser(user);
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Index", new { gameMode = GameMode });
             }
 
             var answer = Request.Form["answer"];
@@ -114,11 +131,23 @@ namespace HelloWorldWeb.Pages
             ShuffledAnswers = JsonConvert.DeserializeObject<Dictionary<string, string>>(answersJson);
             IsCorrect = answer == "correct";
 
-            user.TotalAnswered++;
-            if (IsCorrect)
+            if (GameMode == "noodles")
             {
-                user.CorrectAnswers++;
-                MoveCorrectImages();
+                user.TotalAnswered++;
+                if (IsCorrect)
+                {
+                    user.CorrectAnswers++;
+                    MoveCorrectImages();
+                }
+            }
+            else
+            {
+                user.SoupTotalAnswered++;
+                if (IsCorrect)
+                {
+                    user.SoupCorrectAnswers++;
+                    MoveCorrectImages();
+                }
             }
 
             await _authService.UpdateUser(user);
@@ -152,8 +181,16 @@ namespace HelloWorldWeb.Pages
             if (rapidTotal >= 10 || rapidCorrect >= 8)
             {
                 Console.WriteLine($"[CHEATER DETECTED] User: {user.Username} | RapidTotal: {rapidTotal} | RapidCorrect: {rapidCorrect}");
-                user.CorrectAnswers = 0;
-                user.TotalAnswered = 0;
+                if (GameMode == "noodles")
+                {
+                    user.CorrectAnswers = 0;
+                    user.TotalAnswered = 0;
+                }
+                else
+                {
+                    user.SoupCorrectAnswers = 0;
+                    user.SoupTotalAnswered = 0;
+                }
                 user.IsCheater = true;
                 await _authService.UpdateUser(user);
 
@@ -183,8 +220,8 @@ namespace HelloWorldWeb.Pages
         private void MoveCorrectImages()
         {
             var wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var imagesPath = Path.Combine(wwwroot, "images");
-            var correctPath = Path.Combine(wwwroot, "correct_answers");
+            var imagesPath = Path.Combine(wwwroot, "images", GameMode);
+            var correctPath = Path.Combine(wwwroot, "correct_answers", GameMode);
 
             if (!Directory.Exists(correctPath))
                 Directory.CreateDirectory(correctPath);
@@ -197,6 +234,17 @@ namespace HelloWorldWeb.Pages
                 ShuffledAnswers["c"]
             };
 
+            if (GameMode == "soup")
+            {
+                allFiles = allFiles.Concat(new[] {
+                    ShuffledAnswers["d"],
+                    ShuffledAnswers["e"],
+                    ShuffledAnswers["f"],
+                    ShuffledAnswers["g"],
+                    ShuffledAnswers["h"]
+                }).ToArray();
+            }
+
             foreach (var file in allFiles)
             {
                 var source = Path.Combine(imagesPath, file);
@@ -208,7 +256,7 @@ namespace HelloWorldWeb.Pages
 
         private void LoadRandomQuestion()
         {
-            var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            var imagesDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", GameMode);
 
             var allImages = Directory.GetFiles(imagesDir)
                 .Where(f => f.EndsWith(".png") || f.EndsWith(".jpg") || f.EndsWith(".jpeg") || f.EndsWith(".webp"))
@@ -216,9 +264,10 @@ namespace HelloWorldWeb.Pages
                 .OrderBy(name => name)
                 .ToList();
 
+            var answersPerQuestion = GameMode == "soup" ? 10 : 5;
             var grouped = new List<List<string>>();
-            for (int i = 0; i + 4 < allImages.Count; i += 5)
-                grouped.Add(allImages.GetRange(i, 5));
+            for (int i = 0; i + answersPerQuestion < allImages.Count; i += answersPerQuestion + 1)
+                grouped.Add(allImages.GetRange(i, answersPerQuestion + 1));
 
             if (grouped.Count == 0)
             {
@@ -230,17 +279,21 @@ namespace HelloWorldWeb.Pages
             var chosen = grouped[new Random().Next(grouped.Count)];
             QuestionImage = chosen[0];
             var correct = chosen[1];
-            var wrong = chosen.Skip(2).Take(3).ToList();
+            var wrong = chosen.Skip(2).Take(answersPerQuestion - 1).ToList();
 
-            ShuffledAnswers = new List<(string, string)>
+            var answers = new List<(string, string)>
             {
-                ("correct", correct),
-                ("a", wrong[0]),
-                ("b", wrong[1]),
-                ("c", wrong[2])
+                ("correct", correct)
+            };
+
+            for (int i = 0; i < wrong.Count; i++)
+            {
+                answers.Add(((char)('a' + i)).ToString(), wrong[i]);
             }
-            .OrderBy(x => Guid.NewGuid())
-            .ToDictionary(x => x.Item1, x => x.Item2);
+
+            ShuffledAnswers = answers
+                .OrderBy(x => Guid.NewGuid())
+                .ToDictionary(x => x.Item1, x => x.Item2);
         }
     }
 }

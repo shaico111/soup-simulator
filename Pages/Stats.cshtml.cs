@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HelloWorldWeb.Models;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace HelloWorldWeb.Pages
 {
@@ -25,11 +26,18 @@ namespace HelloWorldWeb.Pages
         {
             var username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrEmpty(username))
-                return new JsonResult(new { error = "No session" });
+                return RedirectToPage("/Login");
 
             var user = await _authService.GetUser(username);
             if (user == null)
-                return new JsonResult(new { error = "User not found" });
+                return RedirectToPage("/Login");
+
+            var onlineCount = (await _authService.GetAllUsers())
+                .Where(u => u.LastSeen != null && u.LastSeen > System.DateTime.UtcNow.AddMinutes(-5))
+                .Count();
+
+            var noodlesSuccessRate = user.TotalAnswered > 0 ? (user.CorrectAnswers * 100.0 / user.TotalAnswered) : 0;
+            var soupSuccessRate = user.SoupTotalAnswered > 0 ? (user.SoupCorrectAnswers * 100.0 / user.SoupTotalAnswered) : 0;
 
             Username = user.Username;
             CorrectAnswers = user.CorrectAnswers;
@@ -40,10 +48,19 @@ namespace HelloWorldWeb.Pages
 
             return new JsonResult(new
             {
-                username,
-                correct = CorrectAnswers,
-                total = TotalAnswered,
-                successRate = SuccessRate
+                noodles = new
+                {
+                    correct = user.CorrectAnswers,
+                    total = user.TotalAnswered,
+                    successRate = (int)noodlesSuccessRate
+                },
+                soup = new
+                {
+                    correct = user.SoupCorrectAnswers,
+                    total = user.SoupTotalAnswered,
+                    successRate = (int)soupSuccessRate
+                },
+                online = onlineCount
             });
         }
     }
