@@ -226,31 +226,28 @@ namespace HelloWorldWeb.Pages
             if (!Directory.Exists(correctPath))
                 Directory.CreateDirectory(correctPath);
 
-            var allFiles = new List<string> {
-                QuestionImage,
-                ShuffledAnswers["correct"],
-                ShuffledAnswers["a"],
-                ShuffledAnswers["b"],
-                ShuffledAnswers["c"]
-            };
-
-            if (GameMode == "soup")
+            var allFiles = new List<string> { QuestionImage };
+            var possibleKeys = new List<string> { "correct", "a", "b", "c", "d", "e", "f", "g", "h" };
+            foreach (var key in possibleKeys)
             {
-                allFiles.AddRange(new[] {
-                    ShuffledAnswers["d"],
-                    ShuffledAnswers["e"],
-                    ShuffledAnswers["f"],
-                    ShuffledAnswers["g"],
-                    ShuffledAnswers["h"]
-                });
+                if (ShuffledAnswers != null && ShuffledAnswers.ContainsKey(key))
+                    allFiles.Add(ShuffledAnswers[key]);
             }
 
             foreach (var file in allFiles)
             {
-                var source = Path.Combine(imagesPath, file);
-                var dest = Path.Combine(correctPath, file);
-                if (System.IO.File.Exists(source) && !System.IO.File.Exists(dest))
-                    System.IO.File.Move(source, dest);
+                try
+                {
+                    var source = Path.Combine(imagesPath, file);
+                    var dest = Path.Combine(correctPath, file);
+                    if (System.IO.File.Exists(source) && !System.IO.File.Exists(dest))
+                        System.IO.File.Move(source, dest);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error, but don't crash
+                    Console.WriteLine($"[MoveCorrectImages] Failed to move {file}: {ex.Message}");
+                }
             }
         }
 
