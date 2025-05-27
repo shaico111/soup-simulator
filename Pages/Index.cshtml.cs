@@ -288,7 +288,7 @@ namespace HelloWorldWeb.Pages
 
             for (int i = 0; i < wrong.Count; i++)
             {
-                answers.Add(((char)('a' + i)).ToString(), wrong[i]);
+                answers.Add(ValueTuple.Create(((char)('a' + i)).ToString(), wrong[i]));
             }
 
             ShuffledAnswers = answers
